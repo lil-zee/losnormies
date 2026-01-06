@@ -55,9 +55,23 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     const dragOffset = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
-        // Center initially
-        setPosition({ x: window.innerWidth / 2 - 300, y: window.innerHeight * 0.1 });
+        // Center initially and set responsive size
+        const w = Math.min(900, window.innerWidth * 0.9);
+        const h = Math.min(800, window.innerHeight * 0.8);
+        setSize({ width: w, height: h });
+        setPosition({ x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 });
     }, []);
+
+    // Resize State
+    const [size, setSize] = useState({ width: 900, height: 700 });
+    const [isResizing, setIsResizing] = useState(false);
+    const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0 });
+
+    const handleResizeMouseDown = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsResizing(true);
+        resizeStart.current = { x: e.clientX, y: e.clientY, w: size.width, h: size.height };
+    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (e.target instanceof HTMLButtonElement || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -67,15 +81,27 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            if (!isDraggingWindow) return;
-            setPosition({
-                x: e.clientX - dragOffset.current.x,
-                y: e.clientY - dragOffset.current.y
-            });
+            if (isDraggingWindow) {
+                setPosition({
+                    x: e.clientX - dragOffset.current.x,
+                    y: e.clientY - dragOffset.current.y
+                });
+            }
+            if (isResizing) {
+                const deltaX = e.clientX - resizeStart.current.x;
+                const deltaY = e.clientY - resizeStart.current.y;
+                setSize({
+                    width: Math.max(320, resizeStart.current.w + deltaX),
+                    height: Math.max(400, resizeStart.current.h + deltaY)
+                });
+            }
         };
-        const handleMouseUp = () => setIsDraggingWindow(false);
+        const handleMouseUp = () => {
+            setIsDraggingWindow(false);
+            setIsResizing(false);
+        };
 
-        if (isDraggingWindow) {
+        if (isDraggingWindow || isResizing) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
@@ -83,7 +109,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDraggingWindow]);
+    }, [isDraggingWindow, isResizing]);
 
     // Fetch full thread data
     useEffect(() => {
@@ -188,8 +214,12 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
             <div
-                className="absolute bg-black w-[90vw] max-w-4xl border-2 border-green-500 flex flex-col h-[80vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden"
-                style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+                className="absolute bg-black border-2 border-green-500 flex flex-col shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden"
+                style={{
+                    transform: `translate(${position.x}px, ${position.y}px)`,
+                    width: size.width,
+                    height: size.height
+                }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* CRT Scanline Overlay for Modal */}
@@ -312,6 +342,14 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                         </div>
                         {error && <p className="text-red-500 text-xs mt-2 font-mono">{error}</p>}
                     </form>
+                </div>
+
+                {/* Resize Handle */}
+                <div
+                    className="absolute bottom-0 right-0 w-6 h-6 bg-green-500/20 cursor-se-resize z-50 flex items-end justify-end p-1"
+                    onMouseDown={handleResizeMouseDown}
+                >
+                    <div className="w-2 h-2 border-r-2 border-b-2 border-green-500"></div>
                 </div>
             </div>
         </div>
