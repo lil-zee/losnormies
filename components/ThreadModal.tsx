@@ -251,6 +251,6 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }
                 </form>
             </div>
         </div>
-        </div >
+
     );
 }
