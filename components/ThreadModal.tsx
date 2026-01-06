@@ -122,6 +122,13 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }
         }
     };
 
+    const handleAdminDelete = () => {
+        if (confirm('ADMIN: DELETE THREAD?')) {
+            if (onAdminDelete) onAdminDelete();
+            onClose();
+        }
+    };
+
     if (loading) {
         return (
             <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 font-mono text-green-500">
