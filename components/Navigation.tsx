@@ -11,9 +11,10 @@ interface Props {
   onToggleLive: () => void;
   showNSFW: boolean;
   onToggleNSFW: () => void;
+  onListClick: () => void;
 }
 
-export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive, showNSFW, onToggleNSFW }: Props) {
+export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive, showNSFW, onToggleNSFW, onListClick }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -105,6 +106,14 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
               <span className="md:hidden">[ID]</span>
             </>
           ) : '[LOGIN]'}
+        </button>
+        <button
+          onClick={onListClick}
+          className="retro-button px-2 py-1 text-sm bg-black text-yellow-500 border-yellow-800 hover:text-yellow-400 hover:border-yellow-500"
+          title="List View"
+        >
+          <span className="hidden md:inline">[ LIST ]</span>
+          <span className="md:hidden">[≣]</span>
         </button>
         <button
           onClick={onCreateClick}

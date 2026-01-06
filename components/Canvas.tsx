@@ -8,6 +8,7 @@ import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
 import Minimap from './Minimap';
+import ListViewModal from './ListViewModal';
 import { useSound } from '@/hooks/useSound';
 
 interface Post {
@@ -39,6 +40,7 @@ export default function Canvas() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [showNSFW, setShowNSFW] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
 
   // Touch States
   const lastTouchRef = useRef<{ x: number, y: number } | null>(null);
@@ -240,6 +242,7 @@ export default function Canvas() {
         onToggleLive={() => setIsLive(!isLive)}
         showNSFW={showNSFW}
         onToggleNSFW={() => setShowNSFW(!showNSFW)}
+        onListClick={() => setShowListModal(true)}
       />
 
       <div
@@ -320,6 +323,19 @@ export default function Canvas() {
           setUserToken(token);
           localStorage.setItem('userToken', token);
           setShowIdentityModal(false);
+        }}
+      />
+
+      <ListViewModal
+        isOpen={showListModal}
+        onClose={() => setShowListModal(false)}
+        posts={posts.filter(p => showNSFW || !p.isNSFW)}
+        onSelectPost={(post) => {
+          playOpen();
+          // Center closely on the post
+          centerOn(post.x, post.y);
+          // Open it
+          setSelectedPost(post);
         }}
       />
 
