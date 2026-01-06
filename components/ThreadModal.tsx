@@ -276,7 +276,12 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
 
                         {thread.imageUrl && (
                             <div className="mb-4 flex justify-center bg-gray-900/30">
-                                <img src={thread.imageUrl} alt="" className="max-h-64 w-auto object-contain border border-green-900" />
+                                <img
+                                    src={thread.imageUrl}
+                                    alt=""
+                                    className="object-contain border border-green-900"
+                                    style={{ maxHeight: '250px', maxWidth: '100%', width: 'auto' }}
+                                />
                             </div>
                         )}
                         {thread.text && (
