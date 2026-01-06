@@ -99,23 +99,23 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated }
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-black w-full max-w-lg border-2 border-green-600 shadow-[8px_8px_0px_#003300] flex flex-col"
+        className="bg-black w-full max-w-md border-2 border-green-600 shadow-[8px_8px_0px_#003300] flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-4 border-b-2 border-green-600 flex justify-between items-center bg-gray-900">
-          <h2 className="text-lg font-bold text-green-500 font-mono tracking-wider">NEW POST @ [{Math.round(x)}, {Math.round(y)}]</h2>
+        <div className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900">
+          <h2 className="text-base font-bold text-green-500 font-mono tracking-wider">NEW POST</h2>
           <button onClick={onClose} className="text-green-500 hover:text-white font-mono">[X]</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4 overflow-y-auto">
           <div>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="WRITE SOMETHING..."
-              className="w-full h-32 bg-black border border-green-600 p-2 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900 resize-none"
+              className="w-full h-24 bg-black border border-green-600 p-2 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900 resize-none text-sm"
             />
-            <div className="text-xs text-green-800 mt-1 font-mono text-right">MARKDOWN SUPPORTED</div>
+            <div className="text-[10px] text-green-800 mt-1 font-mono text-right">MARKDOWN SUPPORTED</div>
           </div>
 
           <div>
@@ -123,11 +123,11 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated }
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono text-sm"
+                className="px-3 py-1 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono text-xs"
               >
                 [ UPLOAD IMAGE ]
               </button>
-              <span className="text-xs text-green-700 font-mono">MAX 5MB</span>
+              <span className="text-[10px] text-green-700 font-mono">MAX 1MB</span>
             </div>
             <input
               ref={fileInputRef}
@@ -137,8 +137,8 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated }
               className="hidden"
             />
             {imagePreview && (
-              <div className="relative inline-block border border-green-800">
-                <img src={imagePreview} alt="Preview" className="h-32 object-contain bg-gray-900" />
+              <div className="relative inline-block border border-green-800 mt-2">
+                <img src={imagePreview} alt="Preview" className="max-h-24 w-auto object-contain bg-gray-900" />
                 <button
                   type="button"
                   onClick={() => { setImageFile(null); setImagePreview(null); }}
