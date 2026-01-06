@@ -266,7 +266,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 </div>
             </div>
         </div>
-    </div >
+
 
     );
 }
