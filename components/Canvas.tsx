@@ -20,6 +20,7 @@ interface Post {
   createdAt: string;
   replyCount: number;
   likes: number;
+  isNSFW?: boolean;
 }
 
 export default function Canvas() {
