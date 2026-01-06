@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Guide for deploying the Anonymous Canvas Board to Vercel. Includes instructions for GitHub repository creation, Vercel project import, and environment variable configuration (Postgres, Blob, Redis, Admin Secret).",
+  "updatedAt":  "2026-01-06T03:48:46.034386900Z"
+}

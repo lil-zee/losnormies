@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: canvas-board-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: canvasuser
+      POSTGRES_PASSWORD: canvaspass
+      POSTGRES_DB: canvasboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U canvasuser -d canvasboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

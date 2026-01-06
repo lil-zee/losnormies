@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Post {
+  id              String    @id @default(cuid())
+  shortId         String    @unique @default(cuid())
+  x               Float
+  y               Float
+  text            String?
+  imageUrl        String?
+  createdAt       DateTime  @default(now())
+  deletedAt       DateTime?
+  deleteTokenHash String?
+  ipHash          String
+  replyCount      Int       @default(0)
+  replies         Reply[]
+
+  @@index([x, y])
+  @@index([createdAt])
+  @@index([shortId])
+  @@map("posts")
+}
+
+model Reply {
+  id              String    @id @default(cuid())
+  postId          String
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  text            String?
+  imageUrl        String?
+  createdAt       DateTime  @default(now())
+  deletedAt       DateTime?
+  deleteTokenHash String?
+  ipHash          String
+
+  @@index([postId, createdAt])
+  @@map("replies")
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  targetType String
+  targetId   String
+  reason     String?
+  createdAt  DateTime @default(now())
+  ipHash     String
+
+  @@index([targetType, targetId])
+  @@map("reports")
+}

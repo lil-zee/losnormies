@@ -1,0 +1,87 @@
+# 🚀 Deployment Guide: Anonymous Canvas Board
+
+This project is configured for seamless deployment on **Vercel** with a **PostgreSQL** database.
+
+## Prerequisites
+
+1.  A [GitHub](https://github.com/) account.
+2.  A [Vercel](https://vercel.com/) account.
+
+---
+
+## Step 1: Push to GitHub
+
+Since I've already initialized the local Git repository for you, you just need to connect it to GitHub.
+
+1.  **Create a new Repository** on GitHub:
+    -   Go to [github.com/new](https://github.com/new).
+    -   Name it [canvas-board](file:///C:/Users/Usuario/.gemini/antigravity/brain/be46b4e2-25c5-495a-9ea4-f66b495579bf/canvas-board) (or whatever you like).
+    -   **Do not** initialize with README/gitignore (project already has them).
+    -   Click **Create repository**.
+
+    > [!IMPORTANT]
+    > **Before pushing:** Open [prisma/schema.prisma](file:///C:/Users/Usuario/.gemini/antigravity/brain/be46b4e2-25c5-495a-9ea4-f66b495579bf/canvas-board/prisma/schema.prisma) and change:
+    > `provider = "sqlite"`  --->  `provider = "postgresql"`
+    > `url = "file:./dev.db"` ---> `url = env("DATABASE_URL")`
+    >
+    > If you don't do this, Vercel will fail properly connecting to the Postgres database.
+
+2.  **Push your code**:
+    -   Copy the commands under "…or push an existing repository from the command line".
+    -   They will look like this (run them in your terminal inside the [canvas-board](file:///C:/Users/Usuario/.gemini/antigravity/brain/be46b4e2-25c5-495a-9ea4-f66b495579bf/canvas-board) folder):
+
+    ```bash
+    git remote add origin https://github.com/YOUR_USERNAME/canvas-board.git
+    git push -u origin main
+    ```
+
+---
+
+## Step 2: Deploy on Vercel
+
+1.  Go to your **Vercel Dashboard** and click **"Add New..."** -> **"Project"**.
+2.  Import the GitHub repository you just created ([canvas-board](file:///C:/Users/Usuario/.gemini/antigravity/brain/be46b4e2-25c5-495a-9ea4-f66b495579bf/canvas-board)).
+3.  In the **Configure Project** screen:
+
+    ### Database & Storage (Vital!)
+    Vercel makes this easy. Before clicking Deploy (or after), go to the **Storage** tab in your Vercel Project Dashboard to create these stores:
+    
+    -   **Vercel Postgres**: Create a new database. It will automatically add `DATABASE_URL` and other variables to your project.
+    -   **Vercel Blob**: Create a new Blob store. It will add `BLOB_READ_WRITE_TOKEN`.
+    -   **Vercel KV (or Upstash Redis)**: Create a KV store. It will add `KV_URL`, `KV_REST_API_URL`, etc.
+
+    ### Environment Variables
+    Expand the **"Environment Variables"** section and ensure these are present (some are auto-added by Storage steps):
+
+    | Variable | Description |
+    | :--- | :--- |
+    | `DATABASE_URL` | Auto-added by Vercel Postgres |
+    | `BLOB_READ_WRITE_TOKEN` | Auto-added by Vercel Blob |
+    | `KV_REST_API_URL` | Auto-added by Vercel KV / Upstash |
+    | `KV_REST_API_TOKEN` | Auto-added by Vercel KV / Upstash |
+    | `ADMIN_SECRET` | **Manually Add This!** The password for Admin Mode. |
+
+4.  Click **Deploy**.
+
+---
+
+## Step 3: Final Setup
+
+Once deployed:
+
+1.  **Run Migrations**: Vercel might not run prisma migrations automatically on the first deploy if the DB is empty. You may need to run this command locally (if connected to prod DB) or check Vercel logs. 
+    *Ideally, change your "Build Command" in Vercel settings to:*
+    `prisma generate && prisma migrate deploy && next build`
+    *But usually `prisma release` workflow handles this.*
+
+2.  **Access your App**: Click the domain provided by Vercel.
+
+3.  **Login as Admin**: Use the `[KEY]` button and the `ADMIN_SECRET` you set in Vercel.
+
+---
+
+## Troubleshooting
+
+-   **Database Errors**: Ensure your [prisma/schema.prisma](file:///C:/Users/Usuario/.gemini/antigravity/brain/be46b4e2-25c5-495a-9ea4-f66b495579bf/canvas-board/prisma/schema.prisma) provider is set to `postgresql` (I already did this for you).
+-   **Images not uploading**: Check `BLOB_READ_WRITE_TOKEN`.
+-   **Rate Limit Errors**: Check `KV_URL` / `upstash` configuration.
