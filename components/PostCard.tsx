@@ -171,7 +171,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
 
   return (
     <div
-      className={`post-card animate-enter bg-black/85 backdrop-blur-md ${isVisualDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : 'cursor-grab'} ${isSelected ? 'active-glow' : ''}`}
+      className={`post-card animate-enter bg-black/90 backdrop-blur-sm transition-all duration-300 ${isVisualDragging ? 'cursor-grabbing scale-105 z-50 glow-lg' : 'cursor-grab glow-sm'} ${isSelected ? 'active-glow' : ''}`}
       style={{ left: position.x, top: position.y, position: 'absolute' }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
@@ -208,7 +208,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
           <MarkdownContent content={post.text} />
         </div>
       )}
-      <div className="flex justify-between items-center text-xs text-gray-400 border-t border-gray-700 pt-2 pointer-events-none">
+      <div className="flex justify-between items-center text-xs text-gray-500 border-t border-green-900/30 pt-2 mt-2 pointer-events-none">
         <span>#{post.shortId.slice(0, 8)}</span>
         <div className="flex gap-3 items-center">
           <button

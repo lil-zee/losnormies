@@ -39,7 +39,7 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-black border-b-2 border-green-500 flex items-center px-4 justify-between z-40 relative">
+    <nav className="fixed top-0 left-0 right-0 h-14 bg-black/90 backdrop-blur-md border-b border-green-900/50 z-[100] px-4 flex items-center gap-3 shadow-[0_2px_20px_rgba(0,255,65,0.1)] justify-between relative">
       <div className="flex items-center gap-4">
         {/* Title centered absolutely with retro font */}
         <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl md:text-4xl font-bold tracking-tighter font-mono uppercase select-none pointer-events-none whitespace-nowrap"
@@ -63,7 +63,7 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
       <div className="flex gap-2 z-10">
         <button
           onClick={onToggleNSFW}
-          className={`retro-button px-2 py-1 text-sm ${showNSFW ? 'bg-red-600 text-black border-red-600' : 'text-red-500 border-red-900'}`}
+          className={`retro-button px-3 py-1.5 text-sm transition-all duration-300 ${showNSFW ? 'bg-red-900 text-red-400 glow-sm' : 'text-gray-600 border-gray-700 hover:border-red-900'}`}
           title="Toggle NSFW Content"
         >
           <span className="hidden md:inline">[ NSFW: {showNSFW ? 'ON' : 'OFF'} ]</span>

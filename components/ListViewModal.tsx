@@ -48,7 +48,7 @@ export default function ListViewModal({ isOpen, onClose, posts, onSelectPost }: 
                                 <th className="p-2 w-12 text-center">★</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="animate-stagger">
                             {sortedPosts.map(post => (
                                 <tr
                                     key={post.id}
