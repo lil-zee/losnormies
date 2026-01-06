@@ -212,61 +212,61 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                         <p className="text-green-800 text-center py-4 italic font-mono">NO REPLIES YET.</p>
                     )}
                 </div>
-            </div>
+                {/* Reply Form */}
+                <div className="p-4 bg-black border-t-2 border-green-600">
+                    <form onSubmit={handleSubmitReply}>
+                        {replyImagePreview && (
+                            <div className="mb-2 relative inline-block">
+                                <img src={replyImagePreview} alt="Preview" className="h-20 border border-green-500" />
+                                <button
+                                    type="button"
+                                    onClick={() => { setReplyImage(null); setReplyImagePreview(null); }}
+                                    className="absolute -top-2 -right-2 bg-red-600 text-black font-bold w-5 h-5 flex items-center justify-center text-xs border border-white"
+                                >
+                                    X
+                                </button>
+                            </div>
+                        )}
 
-            {/* Reply Form */}
-            <div className="p-4 bg-black border-t-2 border-green-600">
-                <form onSubmit={handleSubmitReply}>
-                    {replyImagePreview && (
-                        <div className="mb-2 relative inline-block">
-                            <img src={replyImagePreview} alt="Preview" className="h-20 border border-green-500" />
+                        <div className="flex gap-2">
                             <button
                                 type="button"
-                                onClick={() => { setReplyImage(null); setReplyImagePreview(null); }}
-                                className="absolute -top-2 -right-2 bg-red-600 text-black font-bold w-5 h-5 flex items-center justify-center text-xs border border-white"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-3 py-2 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono"
+                                title="Add Image"
                             >
-                                X
+                                IMG
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
+
+                            <input
+                                type="text"
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="REPLY..."
+                                className="flex-1 bg-black border border-green-600 px-3 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900"
+                            />
+
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || (!replyText && !replyImage)}
+                                className="bg-green-700 text-black font-bold px-4 py-2 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase"
+                            >
+                                {isSubmitting ? '...' : 'Send'}
                             </button>
                         </div>
-                    )}
-
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="px-3 py-2 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono"
-                            title="Add Image"
-                        >
-                            IMG
-                        </button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
-
-                        <input
-                            type="text"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            placeholder="REPLY..."
-                            className="flex-1 bg-black border border-green-600 px-3 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900"
-                        />
-
-                        <button
-                            type="submit"
-                            disabled={isSubmitting || (!replyText && !replyImage)}
-                            className="bg-green-700 text-black font-bold px-4 py-2 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase"
-                        >
-                            {isSubmitting ? '...' : 'Send'}
-                        </button>
-                    </div>
-                    {error && <p className="text-red-500 text-xs mt-2 font-mono">{error}</p>}
-                </form>
+                        {error && <p className="text-red-500 text-xs mt-2 font-mono">{error}</p>}
+                    </form>
+                </div>
             </div>
         </div>
+    </div >
 
     );
 }
