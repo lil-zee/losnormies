@@ -225,7 +225,9 @@ export default function Canvas() {
 
       <div
         className={`canvas-container ${isDragging ? 'grabbing' : ''}`}
-        style={{ paddingTop: '60px' }}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onContextMenu={handleCanvasRightClick}
