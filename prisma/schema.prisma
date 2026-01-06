@@ -56,3 +56,15 @@ model Report {
   @@index([targetType, targetId])
   @@map("reports")
 }
+
+model Graffiti {
+  id        String   @id @default(cuid())
+  x         Float
+  y         Float
+  symbol    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([x, y])
+  @@map("graffiti")
+}
