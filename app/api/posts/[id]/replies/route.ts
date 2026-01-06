@@ -22,7 +22,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const ipHash = hashIP(ip);
     const deleteToken = generateDeleteToken();
     const deleteTokenHash = hashDeleteToken(deleteToken);
-    const reply = await prisma.reply.create({ data: { postId: post.id, text: data.text, imageUrl: data.imageUrl, ipHash, deleteTokenHash, authorToken: userToken } });
+    const reply = await prisma.reply.create({ data: { postId: post.id, text: data.text, imageUrl: data.imageUrl, ipHash, deleteTokenHash, authorToken: userToken, isNSFW: data.isNSFW || false } });
     await prisma.post.update({ where: { id: post.id }, data: { replyCount: { increment: 1 } } });
     return NextResponse.json({ reply, deleteToken });
   } catch (error: any) {

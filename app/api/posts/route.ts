@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         replyCount: true,
         likes: true,
+        isNSFW: true,
       },
       take: 200,
       orderBy: { createdAt: 'desc' },
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
         ipHash,
         deleteTokenHash,
         authorToken: userToken,
+        isNSFW: data.isNSFW || false,
       },
     });
 

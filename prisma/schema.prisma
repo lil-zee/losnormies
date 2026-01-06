@@ -21,6 +21,7 @@ model Post {
   authorToken     String?
   likes           Int       @default(0)
   replyCount      Int       @default(0)
+  isNSFW          Boolean   @default(false)
   replies         Reply[]
 
   @@index([x, y])
@@ -40,6 +41,7 @@ model Reply {
   deleteTokenHash String?
   ipHash          String
   authorToken     String?
+  isNSFW          Boolean   @default(false)
 
   @@index([postId, createdAt])
   @@map("replies")

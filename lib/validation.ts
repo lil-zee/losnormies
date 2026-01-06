@@ -5,6 +5,7 @@ export const createPostSchema = z.object({
   y: z.number().finite(),
   text: z.string().max(5000).optional().nullable(),
   imageUrl: z.string().optional().nullable(),
+  isNSFW: z.boolean().optional(),
 }).refine(data => data.text || data.imageUrl, {
   message: 'Either text or image must be provided',
 });
@@ -12,6 +13,7 @@ export const createPostSchema = z.object({
 export const createReplySchema = z.object({
   text: z.string().max(5000).optional().nullable(),
   imageUrl: z.string().optional().nullable(),
+  isNSFW: z.boolean().optional(),
 }).refine(data => data.text || data.imageUrl, {
   message: 'Either text or image must be provided',
 });

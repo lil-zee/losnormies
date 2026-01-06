@@ -19,6 +19,7 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [deleteToken, setDeleteToken] = useState<string | null>(null);
+  const [isNSFW, setIsNSFW] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -59,7 +60,7 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
           'Content-Type': 'application/json',
           ...(userToken ? { 'x-user-token': userToken } : {})
         },
-        body: JSON.stringify({ x, y, text: text || undefined, imageUrl }),
+        body: JSON.stringify({ x, y, text: text || undefined, imageUrl, isNSFW }),
       });
 
       const data = await res.json();
@@ -153,6 +154,20 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
               </div>
             )}
           </div>
+
+          <div className="flex items-center gap-2 border border-red-900/50 p-2 bg-red-900/10">
+            <input
+              type="checkbox"
+              id="nsfw-check"
+              checked={isNSFW}
+              onChange={e => setIsNSFW(e.target.checked)}
+              className="accent-red-500 w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="nsfw-check" className="text-red-500 font-mono text-xs cursor-pointer select-none font-bold">
+              MARK AS NSFW / SPOILER
+            </label>
+          </div>
+
 
           {error && <div className="text-red-500 text-sm font-mono border border-red-900 p-2 bg-red-900/10">ERROR: {error}</div>}
 

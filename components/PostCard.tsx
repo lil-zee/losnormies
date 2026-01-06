@@ -16,6 +16,7 @@ interface Props {
     createdAt: string;
     replyCount: number;
     likes: number;
+    isNSFW?: boolean;
   };
   onClick?: () => void;
   adminToken?: string | null;
@@ -28,7 +29,10 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
   const [isVisualDragging, setIsVisualDragging] = useState(false);
   const [likes, setLikes] = useState(post.likes);
   const [hasLiked, setHasLiked] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
   const { playSuccess, playClick } = useSound();
+
+  const isBlurry = post.isNSFW && !isRevealed;
 
   useEffect(() => {
     const liked = localStorage.getItem(`liked_${post.id}`);
@@ -56,6 +60,19 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleReport = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('REPORT POST: Are you sure?')) return;
+    try {
+      await fetch('/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetType: 'post', targetId: post.id, reason: 'User Report' })
+      });
+      alert('REPORT SENT');
+    } catch (err) { alert('Error sending report'); }
   };
 
   // Refs for low-level event handling to avoid closure staleness
@@ -169,19 +186,37 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
           [DEL]
         </button>
       )}
+      {isBlurry && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 cursor-pointer backdrop-blur-sm transition-opacity hover:bg-black/50"
+          onClick={(e) => { e.stopPropagation(); setIsRevealed(true); }}
+        >
+          <div className="bg-red-600 text-black font-bold px-2 py-1 border-2 border-white tracking-widest text-xs shadow-[2px_2px_0_black]">
+            SPOILER / NSFW
+          </div>
+        </div>
+      )}
+
       {post.imageUrl && (
-        <div className="mb-2 pointer-events-none">
+        <div className={`mb-2 pointer-events-none transition-all duration-500 ${isBlurry ? 'filter blur-xl opacity-50' : ''}`}>
           <img src={post.imageUrl} alt="" className="w-full h-32 object-cover rounded" />
         </div>
       )}
       {post.text && (
-        <div className="text-sm line-clamp-3 mb-2 pointer-events-none">
+        <div className={`text-sm line-clamp-3 mb-2 pointer-events-none transition-all duration-500 ${isBlurry ? 'filter blur-sm opacity-50' : ''}`}>
           <MarkdownContent content={post.text} />
         </div>
       )}
       <div className="flex justify-between items-center text-xs text-gray-400 border-t border-gray-700 pt-2 pointer-events-none">
         <span>#{post.shortId.slice(0, 8)}</span>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          <button
+            className="text-gray-600 hover:text-red-500 font-bold pointer-events-auto"
+            onClick={handleReport}
+            title="Report Post"
+          >
+            [!]
+          </button>
           <button
             className={`flex items-center gap-1 hover:text-green-300 ${hasLiked ? 'text-green-400 font-bold' : ''} pointer-events-auto`}
             onClick={handleLike}
