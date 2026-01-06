@@ -232,9 +232,15 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     if (!thread) return null;
 
     return (
-        <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
+        <div style={{ position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh', zIndex: 50, pointerEvents: 'none' }}>
+            {/* Blurred Backdrop */}
             <div
-                className={`flex flex-col shadow-[0_0_50px_rgba(0,255,0,0.15)] overflow-hidden bg-[#050505] border-2 border-green-500/80 ${isMobile ? 'fixed inset-0 w-full h-full z-[100]' : 'absolute'}`}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity duration-500"
+                onClick={onClose}
+            />
+
+            <div
+                className={`flex flex-col shadow-[0_0_40px_rgba(0,255,0,0.15)] overflow-visible bg-[#050505] border border-green-900 pointer-events-auto ${isMobile ? 'fixed inset-0 w-full h-full z-[100]' : 'absolute'}`}
                 style={!isMobile ? {
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     width: size.width,
@@ -242,6 +248,16 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 } : {}}
                 onClick={e => e.stopPropagation()}
             >
+                {/* Tech Corners */}
+                {!isMobile && (
+                    <>
+                        <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-green-500 z-50" />
+                        <div className="absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-green-500 z-50" />
+                        <div className="absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-green-500 z-50" />
+                        <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-green-500 z-50" />
+                    </>
+                )}
+
                 {/* CRT Scanline Overlay for Modal */}
                 <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
 

@@ -63,6 +63,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
   };
 
   const handleReport = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (!confirm('REPORT POST: Are you sure?')) return;
     try {
