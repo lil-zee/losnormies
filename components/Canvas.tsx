@@ -20,7 +20,7 @@ interface Post {
 }
 
 export default function Canvas() {
-  const { zoom, pan, isDragging, setIsDragging, handleZoom, handlePan } = useCanvas();
+  const { zoom, pan, isDragging, setIsDragging, handleZoom, handlePan, centerOn, resetView } = useCanvas();
   const viewport = useViewport(zoom, pan);
   const [posts, setPosts] = useState<Post[]>([]);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -38,6 +38,13 @@ export default function Canvas() {
 
     const uToken = localStorage.getItem('userToken');
     if (uToken) setUserToken(uToken);
+
+    // Center canvas initially
+    // Small timeout to ensure window size is correct and hydration is done
+    setTimeout(() => {
+      centerOn(0, 0);
+      handleZoom(-0.2); // Initial zoom out to 0.8 (starts at 1)
+    }, 100);
   }, []);
 
   const fetchPosts = async () => {
