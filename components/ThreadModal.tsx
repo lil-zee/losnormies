@@ -151,11 +151,14 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div
-                className="bg-black w-full max-w-lg border-2 border-green-600 flex flex-col max-h-[90vh] shadow-[8px_8px_0px_#003300]"
+                className="bg-black w-full max-w-2xl border-2 border-green-500 flex flex-col max-h-[85vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] relative overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
+                {/* CRT Scanline Overlay for Modal */}
+                <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
+
                 {/* Header */}
-                <div className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900 shrink-0">
+                <div className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900 shrink-0 relative z-20">
                     <h2 className="text-base font-bold text-green-500 font-mono tracking-wider truncate pr-2">
                         THREAD: {thread.id.substring(0, 8)}
                         {/* Admin Delete Button */}
@@ -186,7 +189,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             </div>
                         )}
                         {thread.text && (
-                            <div className="text-green-400 text-lg mb-2 font-mono break-words whitespace-pre-wrap">
+                            <div className="text-green-400 text-lg mb-2 font-mono break-words whitespace-pre-wrap w-full overflow-hidden">
                                 <MarkdownContent content={thread.text} />
                             </div>
                         )}
@@ -205,7 +208,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             {reply.imageUrl && (
                                 <img src={reply.imageUrl} alt="" className="max-h-64 object-contain mb-2 border border-green-900/50" />
                             )}
-                            {reply.text && <div className="text-green-300 font-mono break-words whitespace-pre-wrap"><MarkdownContent content={reply.text} /></div>}
+                            {reply.text && <div className="text-green-300 font-mono break-words whitespace-pre-wrap w-full overflow-hidden"><MarkdownContent content={reply.text} /></div>}
                         </div>
                     ))}
                     {(!thread.replies || thread.replies.length === 0) && (
@@ -213,7 +216,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                     )}
                 </div>
                 {/* Reply Form */}
-                <div className="p-4 bg-black border-t-2 border-green-600">
+                <div className="p-4 bg-black border-t-2 border-green-600 relative z-20">
                     <form onSubmit={handleSubmitReply}>
                         {replyImagePreview && (
                             <div className="mb-2 relative inline-block">
