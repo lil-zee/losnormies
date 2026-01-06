@@ -37,6 +37,12 @@ interface Props {
     onAdminDelete?: () => void;
     userToken?: string | null;
     onRequestIdentity?: () => void;
+// Helper for foolproof colors
+const getHexColor = (id: string) => {
+    const colors = ['#00ff41', '#00ffff', '#ff00ff', '#f59e0b', '#ec4899']; // Green, Cyan, Magenta, Amber, Pink
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
 }
 
 export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, userToken, onRequestIdentity }: Props) {
@@ -54,12 +60,21 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     const [isDraggingWindow, setIsDraggingWindow] = useState(false);
     const dragOffset = useRef({ x: 0, y: 0 });
 
+    const [isMobile, setIsMobile] = useState(false);
+
     useEffect(() => {
-        // Center initially and set responsive size
+        // Initial mobile check
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        // Center initially and set responsive size for desktop
         const w = Math.min(900, window.innerWidth * 0.9);
         const h = Math.min(800, window.innerHeight * 0.8);
         setSize({ width: w, height: h });
         setPosition({ x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 });
+
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     // Resize State
@@ -68,12 +83,14 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0 });
 
     const handleResizeMouseDown = (e: React.MouseEvent) => {
+        if (isMobile) return;
         e.stopPropagation();
         setIsResizing(true);
         resizeStart.current = { x: e.clientX, y: e.clientY, w: size.width, h: size.height };
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
+        if (isMobile) return;
         if (e.target instanceof HTMLButtonElement || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
         setIsDraggingWindow(true);
         dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
@@ -214,12 +231,12 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
             <div
-                className="absolute bg-black border-2 border-green-500 flex flex-col shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden"
-                style={{
+                className={`flex flex-col shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden bg-black border-2 border-green-500 ${isMobile ? 'fixed inset-0 w-full h-full z-50' : 'absolute'}`}
+                style={!isMobile ? {
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     width: size.width,
                     height: size.height
-                }}
+                } : {}}
                 onClick={e => e.stopPropagation()}
             >
                 {/* CRT Scanline Overlay for Modal */}
@@ -271,18 +288,18 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 {/* Replies */}
                 <div className="space-y-2">
                     {thread.replies?.map((reply, i) => {
-                        // Total Anonymity: Color based on Reply ID (unique), not User IP
-                        const colors = getColorClasses(reply.id);
+                        // Total Anonymity: Color based on Reply ID
+                        const color = getHexColor(reply.id);
                         const uniqueId = reply.id.slice(0, 8);
 
                         return (
-                            <div key={reply.id} className={`bg-black p-3 border-l-4 ${colors.border} ml-4`}>
-                                <div className={`text-xs ${colors.text} mb-1 flex justify-between font-mono`}>
+                            <div key={reply.id} className="bg-black p-3 ml-4" style={{ borderLeft: `4px solid ${color}` }}>
+                                <div className="text-xs mb-1 flex justify-between font-mono" style={{ color: color }}>
                                     <span>ID: {uniqueId}</span>
                                     <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
                                 </div>
                                 {reply.imageUrl && (
-                                    <img src={reply.imageUrl} alt="" className="max-h-32 object-contain mb-2 border border-green-900/50" />
+                                    <img src={reply.imageUrl} alt="" className="object-contain mb-2 border border-green-900/50" style={{ maxHeight: '150px' }} />
                                 )}
                                 {reply.text && <div className={`text-gray-300 font-mono text-sm break-all whitespace-pre-wrap w-full overflow-hidden`}><MarkdownContent content={reply.text} /></div>}
                             </div>
@@ -344,13 +361,15 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                     </form>
                 </div>
 
-                {/* Resize Handle */}
-                <div
-                    className="absolute bottom-0 right-0 w-6 h-6 bg-green-500/20 cursor-se-resize z-50 flex items-end justify-end p-1"
-                    onMouseDown={handleResizeMouseDown}
-                >
-                    <div className="w-2 h-2 border-r-2 border-b-2 border-green-500"></div>
-                </div>
+                {/* Resize Handle (Desktop Only) */}
+                {!isMobile && (
+                    <div
+                        className="absolute bottom-0 right-0 w-6 h-6 bg-green-500/20 cursor-se-resize z-50 flex items-end justify-end p-1"
+                        onMouseDown={handleResizeMouseDown}
+                    >
+                        <div className="w-2 h-2 border-r-2 border-b-2 border-green-500"></div>
+                    </div>
+                )}
             </div>
         </div>
 

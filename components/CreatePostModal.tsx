@@ -101,9 +101,9 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-0 md:p-4" onClick={onClose}>
       <div
-        className="bg-black w-full max-w-md border-2 border-green-600 shadow-[8px_8px_0px_#003300] flex flex-col max-h-[90vh]"
+        className="bg-black w-full h-full md:h-auto md:max-w-md border-2 border-green-600 shadow-none md:shadow-[8px_8px_0px_#003300] flex flex-col md:max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         <div className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900">

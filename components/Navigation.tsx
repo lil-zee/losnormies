@@ -39,7 +39,7 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
     <nav className="fixed top-0 left-0 right-0 h-16 bg-black border-b-2 border-green-500 flex items-center px-4 justify-between z-40 relative">
       <div className="flex items-center gap-4">
         {/* Title centered absolutely with retro font */}
-        <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold tracking-tighter font-mono uppercase select-none pointer-events-none"
+        <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl md:text-4xl font-bold tracking-tighter font-mono uppercase select-none pointer-events-none whitespace-nowrap"
           style={{
             color: '#fff',
             textShadow: '0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff41'
@@ -47,7 +47,7 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
           LOS NORMIES
         </h1>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-xs relative z-10">
+        <form onSubmit={handleSearch} className="flex-1 max-w-xs relative z-10 hidden md:block">
           <input
             type="text"
             placeholder="SEARCH..."
@@ -58,6 +58,13 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
         </form>
       </div>
       <div className="flex gap-2 z-10">
+        <button
+          onClick={onToggleLive}
+          className={`retro-button px-2 py-1 text-sm ${isLive ? 'bg-green-500 text-black border-green-500' : 'text-green-500'}`}
+        >
+          <span className="hidden md:inline">[ LIVE: {isLive ? 'ON' : 'OFF'} ]</span>
+          <span className="md:hidden">{isLive ? '[L:ON]' : '[L:OFF]'}</span>
+        </button>
         <button
           onClick={() => {
             const token = localStorage.getItem('adminToken');
@@ -82,13 +89,19 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
           className="retro-button px-2 py-1 text-sm bg-black text-blue-500 border-blue-900 hover:text-blue-400 hover:border-blue-500"
           title="Identity"
         >
-          {userToken ? `[ID:${userToken.substring(0, 6)}]` : '[LOGIN]'}
+          {userToken ? (
+            <>
+              <span className="hidden md:inline">[ID:{userToken.substring(0, 6)}]</span>
+              <span className="md:hidden">[ID]</span>
+            </>
+          ) : '[LOGIN]'}
         </button>
         <button
           onClick={onCreateClick}
           className="retro-button px-4 py-1 text-sm glitch-hover"
         >
-          [ NEW POST ]
+          <span className="hidden md:inline">[ NEW POST ]</span>
+          <span className="md:hidden">[ + ]</span>
         </button>
       </div>
     </nav>
