@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { useViewport } from '@/hooks/useViewport';
 import PostCard from './PostCard';
@@ -35,6 +35,11 @@ export default function Canvas() {
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showIdentityModal, setShowIdentityModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Touch States
+  const lastTouchRef = useRef<{ x: number, y: number } | null>(null);
+  const lastDistRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Check for tokens
@@ -84,7 +89,11 @@ export default function Canvas() {
         const data = await res.json();
         if (data.posts) {
           setPosts(prev => {
-            if (data.posts.length > prev.length) playSuccess();
+            if (data.posts.length > prev.length) {
+              playSuccess();
+              setToastMsg(`SIGNAL DETECTED: +${data.posts.length - prev.length} POSTS`);
+              setTimeout(() => setToastMsg(null), 3000);
+            }
             return data.posts;
           });
         }
@@ -117,6 +126,45 @@ export default function Canvas() {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  // TOUCH HANDLERS
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      lastTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      setIsDragging(true);
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      lastDistRef.current = dist;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent native scroll
+
+    if (e.touches.length === 1 && lastTouchRef.current) {
+      const dx = e.touches[0].clientX - lastTouchRef.current.x;
+      const dy = e.touches[0].clientY - lastTouchRef.current.y;
+      handlePan(dx, dy);
+      lastTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else if (e.touches.length === 2 && lastDistRef.current) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = (dist - lastDistRef.current) * 0.005; // Sensitivity
+      handleZoom(delta);
+      lastDistRef.current = dist;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    lastTouchRef.current = null;
+    lastDistRef.current = null;
   };
 
   const handleCanvasRightClick = (e: React.MouseEvent) => {
@@ -161,7 +209,10 @@ export default function Canvas() {
         onCreateClick={() => {
           if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
           playOpen();
-          setCreatePosition({ x: 0, y: 0 });
+          // Create at center of current view
+          const centerX = (window.innerWidth / 2 - pan.x) / zoom;
+          const centerY = (window.innerHeight / 2 - pan.y) / zoom;
+          setCreatePosition({ x: centerX, y: centerY });
           setShowCreateModal(true);
         }}
         currentZoom={zoom}
@@ -175,12 +226,13 @@ export default function Canvas() {
       <div
         className={`canvas-container ${isDragging ? 'grabbing' : ''}`}
         style={{ paddingTop: '60px' }}
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onContextMenu={handleCanvasRightClick}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ paddingTop: '60px', touchAction: 'none' }}
       >
         <div
           style={{
@@ -198,6 +250,7 @@ export default function Canvas() {
               onClick={() => { playOpen(); setSelectedPost(post); }}
               adminToken={adminToken}
               onAdminDelete={() => handleDeletePost(post.id)}
+              isSelected={selectedPost?.id === post.id}
             />
           ))}
         </div>
@@ -250,6 +303,12 @@ export default function Canvas() {
       />
 
       <Minimap posts={posts} pan={pan} zoom={zoom} />
+
+      {toastMsg && (
+        <div className="fixed top-20 right-4 bg-green-500 text-black px-4 py-2 font-mono font-bold animate-enter border-2 border-white shadow-[4px_4px_0_black] z-50 md:top-24 md:right-8">
+          {toastMsg}
+        </div>
+      )}
     </>
   );
 }

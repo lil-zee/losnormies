@@ -25,7 +25,7 @@ body::before {
   left: -100%;
   width: 300%;
   height: 300%;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -36,8 +36,13 @@ body::before {
 }
 
 @keyframes gridFly {
-  0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-100px); }
-  100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-100px); }
+  0% {
+    transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-100px);
+  }
+
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-100px);
+  }
 }
 
 /* CRT SCANLINE OVERLAY */
@@ -45,7 +50,10 @@ body::after {
   content: " ";
   display: block;
   position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
   z-index: 30;
   background-size: 100% 4px, 6px 100%;
@@ -61,12 +69,29 @@ body::after {
 }
 
 @keyframes glitch-skew {
-  0% { transform: translate(0) }
-  20% { transform: translate(-2px, 2px) }
-  40% { transform: translate(-2px, -2px) }
-  60% { transform: translate(2px, 2px) }
-  80% { transform: translate(2px, -2px) }
-  100% { transform: translate(0) }
+  0% {
+    transform: translate(0)
+  }
+
+  20% {
+    transform: translate(-2px, 2px)
+  }
+
+  40% {
+    transform: translate(-2px, -2px)
+  }
+
+  60% {
+    transform: translate(2px, 2px)
+  }
+
+  80% {
+    transform: translate(2px, -2px)
+  }
+
+  100% {
+    transform: translate(0)
+  }
 }
 
 /* COMPONENTS */
@@ -119,15 +144,89 @@ body::after {
 }
 
 /* MARKDOWN STYLES */
-.markdown-content { font-size: 14px; line-height: 1.6; }
-.markdown-content h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; }
-.markdown-content h2 { font-size: 1.3em; font-weight: bold; margin-bottom: 0.4em; }
-.markdown-content a { color: #60a5fa; text-decoration: none; }
-.markdown-content a:hover { text-decoration: underline; }
-.markdown-content code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; }
-.markdown-content pre { background: #1a1a1a; padding: 12px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8em; }
+.markdown-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.markdown-content h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 0.4em;
+}
+
+.markdown-content a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content code {
+  background: #1a1a1a;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.markdown-content pre {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 0.8em;
+}
 
 /* Global Cursor Override */
-button, a, input, textarea, select, .clickable {
+button,
+a,
+input,
+textarea,
+select,
+.clickable {
   cursor: pointer;
+}
+
+/* UX ANIMATIONS */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-enter {
+  animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 255, 65, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0);
+  }
+}
+
+.active-glow {
+  animation: pulse-ring 2s infinite;
+  border-color: #fff !important;
+  z-index: 60 !important;
 }

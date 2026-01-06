@@ -20,9 +20,10 @@ interface Props {
   onClick?: () => void;
   adminToken?: string | null;
   onAdminDelete?: () => void;
+  isSelected?: boolean;
 }
 
-export default function PostCard({ post, onClick, adminToken, onAdminDelete }: Props) {
+export default function PostCard({ post, onClick, adminToken, onAdminDelete, isSelected }: Props) {
   const [position, setPosition] = useState({ x: post.x, y: post.y });
   const [isVisualDragging, setIsVisualDragging] = useState(false);
   const [likes, setLikes] = useState(post.likes);
@@ -152,7 +153,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete }: P
 
   return (
     <div
-      className={`post-card ${isVisualDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : 'cursor-grab'}`}
+      className={`post-card animate-enter ${isVisualDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : 'cursor-grab'} ${isSelected ? 'active-glow' : ''}`}
       style={{ left: position.x, top: position.y, position: 'absolute' }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
