@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { relativeTime } from '@/utils/relativeTime';
 import MarkdownContent from './MarkdownContent';
 import Image from 'next/image';
+import { useSound } from '@/hooks/useSound';
 
 interface Props {
   post: {
@@ -14,6 +15,7 @@ interface Props {
     imageUrl?: string;
     createdAt: string;
     replyCount: number;
+    likes: number;
   };
   onClick?: () => void;
   adminToken?: string | null;
@@ -23,6 +25,37 @@ interface Props {
 export default function PostCard({ post, onClick, adminToken, onAdminDelete }: Props) {
   const [position, setPosition] = useState({ x: post.x, y: post.y });
   const [isVisualDragging, setIsVisualDragging] = useState(false);
+  const [likes, setLikes] = useState(post.likes);
+  const [hasLiked, setHasLiked] = useState(false);
+  const { playSuccess, playClick } = useSound();
+
+  useEffect(() => {
+    const liked = localStorage.getItem(`liked_${post.id}`);
+    if (liked) setHasLiked(true);
+  }, [post.id]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const newHasLiked = !hasLiked;
+    setHasLiked(newHasLiked);
+    setLikes(prev => newHasLiked ? prev + 1 : prev - 1);
+
+    if (newHasLiked) playSuccess();
+    else playClick();
+
+    localStorage.setItem(`liked_${post.id}`, newHasLiked ? 'true' : '');
+
+    try {
+      await fetch(`/api/posts/${post.id}/like`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ increment: newHasLiked })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Refs for low-level event handling to avoid closure staleness
   const dragRef = useRef({
@@ -147,8 +180,16 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete }: P
       )}
       <div className="flex justify-between items-center text-xs text-gray-400 border-t border-gray-700 pt-2 pointer-events-none">
         <span>#{post.shortId.slice(0, 8)}</span>
-        <span>{relativeTime(post.createdAt)}</span>
-        {post.replyCount > 0 && <span>💬 {post.replyCount}</span>}
+        <div className="flex gap-3">
+          <button
+            className={`flex items-center gap-1 hover:text-green-300 ${hasLiked ? 'text-green-400 font-bold' : ''} pointer-events-auto`}
+            onClick={handleLike}
+          >
+            {hasLiked ? '★' : '☆'} {likes}
+          </button>
+          <span>{relativeTime(post.createdAt)}</span>
+          {post.replyCount > 0 && <span>💬 {post.replyCount}</span>}
+        </div>
       </div>
     </div>
   );

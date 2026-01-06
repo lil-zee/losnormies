@@ -7,6 +7,8 @@ import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
+import Minimap from './Minimap';
+import { useSound } from '@/hooks/useSound';
 
 interface Post {
   id: string;
@@ -17,11 +19,13 @@ interface Post {
   imageUrl?: string;
   createdAt: string;
   replyCount: number;
+  likes: number;
 }
 
 export default function Canvas() {
   const { zoom, pan, isDragging, setIsDragging, handleZoom, handlePan, centerOn, resetView } = useCanvas();
   const viewport = useViewport(zoom, pan);
+  const { playOpen } = useSound();
   const [posts, setPosts] = useState<Post[]>([]);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -100,10 +104,12 @@ export default function Canvas() {
     const canvasY = (e.clientY - pan.y) / zoom;
 
     if (!userToken) {
+      playOpen();
       setShowIdentityModal(true);
       return;
     }
 
+    playOpen();
     setCreatePosition({ x: canvasX, y: canvasY });
     setShowCreateModal(true);
   };
@@ -132,14 +138,15 @@ export default function Canvas() {
     <>
       <Navigation
         onCreateClick={() => {
-          if (!userToken) { setShowIdentityModal(true); return; }
+          if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
+          playOpen();
           setCreatePosition({ x: 0, y: 0 });
           setShowCreateModal(true);
         }}
         currentZoom={zoom}
         onZoomChange={handleZoom}
         userToken={userToken}
-        onLoginClick={() => setShowIdentityModal(true)}
+        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
       />
 
       <div
@@ -165,7 +172,7 @@ export default function Canvas() {
             <PostCard
               key={post.id}
               post={post}
-              onClick={() => setSelectedPost(post)}
+              onClick={() => { playOpen(); setSelectedPost(post); }}
               adminToken={adminToken}
               onAdminDelete={() => handleDeletePost(post.id)}
             />
@@ -218,6 +225,8 @@ export default function Canvas() {
           setShowIdentityModal(false);
         }}
       />
+
+      <Minimap posts={posts} pan={pan} zoom={zoom} />
     </>
   );
 }

@@ -19,6 +19,7 @@ model Post {
   deleteTokenHash String?
   ipHash          String
   authorToken     String?
+  likes           Int       @default(0)
   replyCount      Int       @default(0)
   replies         Reply[]
 

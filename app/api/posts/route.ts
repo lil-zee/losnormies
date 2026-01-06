@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         imageUrl: true,
         createdAt: true,
         replyCount: true,
+        likes: true,
       },
       take: 200,
       orderBy: { createdAt: 'desc' },

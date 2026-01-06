@@ -72,9 +72,10 @@ body::after {
 }
 
 .retro-button {
-  background: #000;
+  background: #050505;
+  color: #00ff41;
+  cursor: crosshair !important;
   border: 1px solid var(--matrix-green);
-  color: var(--matrix-green);
   font-family: 'Courier New', monospace;
   text-transform: uppercase;
   letter-spacing: 1px;
