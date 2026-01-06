@@ -37,6 +37,8 @@ interface Props {
     onAdminDelete?: () => void;
     userToken?: string | null;
     onRequestIdentity?: () => void;
+}
+
 // Helper for foolproof colors
 const getHexColor = (id: string | null | undefined) => {
     if (!id) return '#00ff41';
