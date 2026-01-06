@@ -6,10 +6,12 @@ interface Props {
   currentZoom: number;
   onZoomChange: (delta: number) => void;
   userToken?: string | null;
-  onLoginClick?: () => void;
+  onLoginClick: () => void;
+  isLive: boolean;
+  onToggleLive: () => void;
 }
 
-export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick }: Props) {
+export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {

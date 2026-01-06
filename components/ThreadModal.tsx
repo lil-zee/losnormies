@@ -49,6 +49,42 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     const [error, setError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Draggable Window State
+    const [position, setPosition] = useState({ x: 100, y: 100 });
+    const [isDraggingWindow, setIsDraggingWindow] = useState(false);
+    const dragOffset = useRef({ x: 0, y: 0 });
+
+    useEffect(() => {
+        // Center initially
+        setPosition({ x: window.innerWidth / 2 - 300, y: window.innerHeight * 0.1 });
+    }, []);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.target instanceof HTMLButtonElement || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        setIsDraggingWindow(true);
+        dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDraggingWindow) return;
+            setPosition({
+                x: e.clientX - dragOffset.current.x,
+                y: e.clientY - dragOffset.current.y
+            });
+        };
+        const handleMouseUp = () => setIsDraggingWindow(false);
+
+        if (isDraggingWindow) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDraggingWindow]);
+
     // Fetch full thread data
     useEffect(() => {
         const fetchThread = async () => {
@@ -150,16 +186,20 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     if (!thread) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
             <div
-                className="bg-black w-[90vw] max-w-4xl border-2 border-green-500 flex flex-col h-[80vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] relative overflow-hidden"
+                className="absolute bg-black w-[90vw] max-w-4xl border-2 border-green-500 flex flex-col h-[80vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden"
+                style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* CRT Scanline Overlay for Modal */}
                 <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
 
-                {/* Header */}
-                <div className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900 shrink-0 relative z-20">
+                {/* Header (Draggable Handle) */}
+                <div
+                    className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900 shrink-0 relative z-20 cursor-move"
+                    onMouseDown={handleMouseDown}
+                >
                     <h2 className="text-base font-bold text-green-500 font-mono tracking-wider truncate pr-2">
                         THREAD: {thread.id.substring(0, 8)}
                         {/* Admin Delete Button */}
@@ -201,11 +241,14 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 {/* Replies */}
                 <div className="space-y-2">
                     {thread.replies?.map((reply, i) => {
-                        const colors = getColorClasses(reply.ipHash);
+                        // Total Anonymity: Color based on Reply ID (unique), not User IP
+                        const colors = getColorClasses(reply.id);
+                        const uniqueId = reply.id.slice(0, 8);
+
                         return (
                             <div key={reply.id} className={`bg-black p-3 border-l-4 ${colors.border} ml-4`}>
                                 <div className={`text-xs ${colors.text} mb-1 flex justify-between font-mono`}>
-                                    <span>ANONYMOUS {i + 1}</span>
+                                    <span>ID: {uniqueId}</span>
                                     <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
                                 </div>
                                 {reply.imageUrl && (

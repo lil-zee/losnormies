@@ -25,8 +25,9 @@ interface Post {
 export default function Canvas() {
   const { zoom, pan, isDragging, setIsDragging, handleZoom, handlePan, centerOn, resetView } = useCanvas();
   const viewport = useViewport(zoom, pan);
-  const { playOpen } = useSound();
+  const { playOpen, playSuccess } = useSound();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isLive, setIsLive] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createPosition, setCreatePosition] = useState({ x: 0, y: 0 });
@@ -73,6 +74,26 @@ export default function Canvas() {
     }, 600);
     return () => clearTimeout(timer);
   }, [viewport.minX, viewport.maxX, viewport.minY, viewport.maxY]);
+
+  // Live Poll
+  useEffect(() => {
+    if (!isLive) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/posts');
+        const data = await res.json();
+        if (data.posts) {
+          setPosts(prev => {
+            if (data.posts.length > prev.length) playSuccess();
+            return data.posts;
+          });
+        }
+      } catch (e) {
+        console.error('Poll failed', e);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isLive, playSuccess]);
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -147,6 +168,8 @@ export default function Canvas() {
         onZoomChange={handleZoom}
         userToken={userToken}
         onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
+        isLive={isLive}
+        onToggleLive={() => setIsLive(!isLive)}
       />
 
       <div
