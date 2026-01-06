@@ -167,7 +167,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }
                     {/* Main Post */}
                     <div className="mb-6 border-b border-green-900 pb-4">
                         <div className="text-xs text-green-800 font-mono mb-2 flex justify-between">
-                            <span>{formatRelativeTime(thread.createdAt)}</span>
+                            <span>{relativeTime(thread.createdAt)}</span>
                             <span>ID: {thread.shortId}</span>
                         </div>
 
