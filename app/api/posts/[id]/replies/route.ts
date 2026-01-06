@@ -11,6 +11,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const ip = getClientIP(request);
     const { success } = await ratelimit.limit(ip);
     if (!success) return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+
+    const userToken = request.headers.get('x-user-token');
+    if (!userToken) return NextResponse.json({ error: 'Identity Token Required' }, { status: 401 });
+
     const body = await request.json();
     const data = createReplySchema.parse(body);
     const post = await prisma.post.findFirst({ where: { OR: [{ id }, { shortId: id }], deletedAt: null } });
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const ipHash = hashIP(ip);
     const deleteToken = generateDeleteToken();
     const deleteTokenHash = hashDeleteToken(deleteToken);
-    const reply = await prisma.reply.create({ data: { postId: post.id, text: data.text, imageUrl: data.imageUrl, ipHash, deleteTokenHash } });
+    const reply = await prisma.reply.create({ data: { postId: post.id, text: data.text, imageUrl: data.imageUrl, ipHash, deleteTokenHash, authorToken: userToken } });
     await prisma.post.update({ where: { id: post.id }, data: { replyCount: { increment: 1 } } });
     return NextResponse.json({ reply, deleteToken });
   } catch (error: any) {

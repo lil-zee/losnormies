@@ -18,6 +18,7 @@ model Post {
   deletedAt       DateTime?
   deleteTokenHash String?
   ipHash          String
+  authorToken     String?
   replyCount      Int       @default(0)
   replies         Reply[]
 
@@ -37,6 +38,7 @@ model Reply {
   deletedAt       DateTime?
   deleteTokenHash String?
   ipHash          String
+  authorToken     String?
 
   @@index([postId, createdAt])
   @@map("replies")

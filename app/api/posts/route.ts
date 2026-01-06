@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIP(request);
-    
+
     // Rate limiting check
     try {
       const { success } = await ratelimit.limit(ip);
@@ -57,6 +57,11 @@ export async function POST(request: NextRequest) {
       }
     } catch (rateLimitError) {
       console.warn('Rate limit check failed, allowing request:', rateLimitError);
+    }
+
+    const userToken = request.headers.get('x-user-token');
+    if (!userToken) {
+      return NextResponse.json({ error: 'Identity Token Required' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -73,6 +78,7 @@ export async function POST(request: NextRequest) {
         imageUrl: data.imageUrl,
         ipHash,
         deleteTokenHash,
+        authorToken: userToken,
       },
     });
 

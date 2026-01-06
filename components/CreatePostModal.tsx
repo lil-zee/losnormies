@@ -9,9 +9,10 @@ interface Props {
   x: number;
   y: number;
   onPostCreated?: () => void;
+  userToken?: string | null;
 }
 
-export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated }: Props) {
+export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, userToken }: Props) {
   const [text, setText] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -54,7 +55,10 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated }
 
       const res = await fetch('/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(userToken ? { 'x-user-token': userToken } : {})
+        },
         body: JSON.stringify({ x, y, text: text || undefined, imageUrl }),
       });
 

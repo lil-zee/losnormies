@@ -34,9 +34,11 @@ interface Props {
     onClose: () => void;
     adminToken?: string | null;
     onAdminDelete?: () => void;
+    userToken?: string | null;
+    onRequestIdentity?: () => void;
 }
 
-export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }: Props) {
+export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, userToken, onRequestIdentity }: Props) {
     const [thread, setThread] = useState<Post | null>(null);
     const [loading, setLoading] = useState(true);
     const [replyText, setReplyText] = useState('');
@@ -74,6 +76,10 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }
 
     const handleSubmitReply = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!userToken) {
+            onRequestIdentity?.();
+            return;
+        }
         if (!replyText && !replyImage) return;
 
         setIsSubmitting(true);
@@ -92,7 +98,10 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete }
 
             const res = await fetch(`/api/posts/${post.id}/replies`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-token': userToken || ''
+                },
                 body: JSON.stringify({ text: replyText || undefined, imageUrl }),
             });
 

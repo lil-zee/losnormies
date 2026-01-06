@@ -5,9 +5,11 @@ interface Props {
   onCreateClick: () => void;
   currentZoom: number;
   onZoomChange: (delta: number) => void;
+  userToken?: string | null;
+  onLoginClick?: () => void;
 }
 
-export default function Navigation({ onCreateClick, currentZoom, onZoomChange }: Props) {
+export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -72,6 +74,13 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange }:
           title="Admin Mode"
         >
           {typeof window !== 'undefined' && localStorage.getItem('adminToken') ? '[LOGOUT]' : '[KEY]'}
+        </button>
+        <button
+          onClick={onLoginClick}
+          className="retro-button px-2 py-1 text-sm bg-black text-blue-500 border-blue-900 hover:text-blue-400 hover:border-blue-500"
+          title="Identity"
+        >
+          {userToken ? `[ID:${userToken.substring(0, 6)}]` : '[LOGIN]'}
         </button>
         <button
           onClick={onCreateClick}

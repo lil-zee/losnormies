@@ -6,6 +6,7 @@ import PostCard from './PostCard';
 import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
+import IdentityModal from './IdentityModal';
 
 interface Post {
   id: string;
@@ -27,11 +28,16 @@ export default function Canvas() {
   const [createPosition, setCreatePosition] = useState({ x: 0, y: 0 });
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const [showIdentityModal, setShowIdentityModal] = useState(false);
 
   useEffect(() => {
-    // Check for admin token
+    // Check for tokens
     const token = localStorage.getItem('adminToken');
     if (token) setAdminToken(token);
+
+    const uToken = localStorage.getItem('userToken');
+    if (uToken) setUserToken(uToken);
   }, []);
 
   const fetchPosts = async () => {
@@ -85,6 +91,12 @@ export default function Canvas() {
     e.preventDefault();
     const canvasX = (e.clientX - pan.x) / zoom;
     const canvasY = (e.clientY - pan.y) / zoom;
+
+    if (!userToken) {
+      setShowIdentityModal(true);
+      return;
+    }
+
     setCreatePosition({ x: canvasX, y: canvasY });
     setShowCreateModal(true);
   };
@@ -112,9 +124,15 @@ export default function Canvas() {
   return (
     <>
       <Navigation
-        onCreateClick={() => { setCreatePosition({ x: 0, y: 0 }); setShowCreateModal(true); }}
+        onCreateClick={() => {
+          if (!userToken) { setShowIdentityModal(true); return; }
+          setCreatePosition({ x: 0, y: 0 });
+          setShowCreateModal(true);
+        }}
         currentZoom={zoom}
         onZoomChange={handleZoom}
+        userToken={userToken}
+        onLoginClick={() => setShowIdentityModal(true)}
       />
 
       <div
@@ -170,6 +188,7 @@ export default function Canvas() {
         x={createPosition.x}
         y={createPosition.y}
         onPostCreated={() => { setShowCreateModal(false); fetchPosts(); }}
+        userToken={userToken}
       />
 
       {selectedPost && (
@@ -178,8 +197,20 @@ export default function Canvas() {
           onClose={() => setSelectedPost(null)}
           adminToken={adminToken}
           onAdminDelete={() => handleDeletePost(selectedPost.id)}
+          userToken={userToken}
+          onRequestIdentity={() => setShowIdentityModal(true)}
         />
       )}
+
+      <IdentityModal
+        isOpen={showIdentityModal}
+        onClose={() => setShowIdentityModal(false)}
+        onLogin={(token) => {
+          setUserToken(token);
+          localStorage.setItem('userToken', token);
+          setShowIdentityModal(false);
+        }}
+      />
     </>
   );
 }
