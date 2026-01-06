@@ -256,7 +256,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
 
                         {thread.imageUrl && (
                             <div className="mb-4 flex justify-center bg-gray-900/30">
-                                <img src={thread.imageUrl} alt="" className="max-h-[50vh] w-auto object-contain border border-green-900" />
+                                <img src={thread.imageUrl} alt="" className="max-h-64 w-auto object-contain border border-green-900" />
                             </div>
                         )}
                         {thread.text && (
@@ -282,7 +282,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                                     <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
                                 </div>
                                 {reply.imageUrl && (
-                                    <img src={reply.imageUrl} alt="" className="max-h-64 object-contain mb-2 border border-green-900/50" />
+                                    <img src={reply.imageUrl} alt="" className="max-h-32 object-contain mb-2 border border-green-900/50" />
                                 )}
                                 {reply.text && <div className={`text-gray-300 font-mono text-sm break-all whitespace-pre-wrap w-full overflow-hidden`}><MarkdownContent content={reply.text} /></div>}
                             </div>
@@ -296,8 +296,8 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 <div className="p-4 bg-black border-t-2 border-green-600 relative z-20">
                     <form onSubmit={handleSubmitReply}>
                         {replyImagePreview && (
-                            <div className="mb-2 relative inline-block">
-                                <img src={replyImagePreview} alt="Preview" className="h-20 border border-green-500" />
+                            <div className="mb-2 relative inline-block max-w-[150px]">
+                                <img src={replyImagePreview} alt="Preview" className="max-h-20 w-auto object-contain border border-green-500" />
                                 <button
                                     type="button"
                                     onClick={() => { setReplyImage(null); setReplyImagePreview(null); }}
