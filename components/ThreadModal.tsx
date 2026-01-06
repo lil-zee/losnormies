@@ -234,7 +234,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
             <div
-                className={`flex flex-col shadow-[0_0_30px_rgba(0,255,0,0.3)] overflow-hidden bg-black border-2 border-green-500 ${isMobile ? 'fixed inset-0 w-full h-full z-50' : 'absolute'}`}
+                className={`flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden bg-zinc-950 border-2 border-green-500 ${isMobile ? 'fixed inset-0 w-full h-full z-50' : 'absolute'}`}
                 style={!isMobile ? {
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     width: size.width,
@@ -301,7 +301,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                         const uniqueId = reply.id.slice(0, 8);
 
                         return (
-                            <div key={reply.id} className="bg-black p-3 ml-4" style={{ borderLeft: `4px solid ${color}` }}>
+                            <div key={reply.id} className="bg-black/40 p-4 border-b border-green-900/30 last:border-0" style={{ borderLeft: `4px solid ${color}` }}>
                                 <div className="text-xs mb-1 flex justify-between font-mono" style={{ color: color }}>
                                     <span>ID: {uniqueId}</span>
                                     <span>{relativeTime(reply.createdAt).toUpperCase()}</span>

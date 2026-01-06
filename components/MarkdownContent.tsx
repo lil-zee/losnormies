@@ -13,10 +13,25 @@ export default function MarkdownContent({ content }: Props) {
         rehypePlugins={[rehypeSanitize]}
         components={{
           a: ({ node, ...props }) => {
-            const isYoutube = props.href?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
+            const url = props.href || '';
+            let videoId = null;
 
-            if (isYoutube) {
-              const videoId = isYoutube[1];
+            try {
+              const urlObj = new URL(url);
+              if (urlObj.hostname.includes('youtube.com')) {
+                if (urlObj.pathname.startsWith('/shorts/')) {
+                  videoId = urlObj.pathname.split('/')[2];
+                } else {
+                  videoId = urlObj.searchParams.get('v');
+                }
+              } else if (urlObj.hostname.includes('youtu.be')) {
+                videoId = urlObj.pathname.slice(1);
+              }
+            } catch (e) {
+              // Invalid URL
+            }
+
+            if (videoId && videoId.length === 11) {
               return (
                 <span className="block my-1">
                   <a
