@@ -203,7 +203,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
         </div>
       )}
       {post.text && (
-        <div className={`text-sm max-h-[600px] overflow-y-auto mb-2 pointer-events-auto custom-scrollbar transition-all duration-500 ${isBlurry ? 'filter blur-sm opacity-50 pointer-events-none' : ''}`}>
+        <div className={`text-sm max-h-[600px] overflow-y-auto mb-2 pointer-events-auto custom-scrollbar transition-all duration-500 break-words ${isBlurry ? 'filter blur-sm opacity-50 pointer-events-none' : ''}`}>
           <MarkdownContent content={post.text} />
         </div>
       )}

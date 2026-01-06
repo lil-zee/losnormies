@@ -234,7 +234,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div style={{ position: 'fixed', left: 0, top: 0, width: 0, height: 0, zIndex: 50 }}>
             <div
-                className={`flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden bg-zinc-950 border-2 border-green-500 ${isMobile ? 'fixed inset-0 w-full h-full z-50' : 'absolute'}`}
+                className={`flex flex-col shadow-[0_0_50px_rgba(0,255,0,0.15)] overflow-hidden bg-[#050505] border-2 border-green-500/80 ${isMobile ? 'fixed inset-0 w-full h-full z-[100]' : 'absolute'}`}
                 style={!isMobile ? {
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     width: size.width,
@@ -285,7 +285,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             </div>
                         )}
                         {thread.text && (
-                            <div className="text-green-400 text-lg mb-2 font-mono break-all whitespace-pre-wrap w-full overflow-hidden">
+                            <div className="text-green-400 text-lg mb-2 font-mono break-words w-full overflow-hidden">
                                 <MarkdownContent content={thread.text} />
                             </div>
                         )}
