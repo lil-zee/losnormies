@@ -142,12 +142,12 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
               className="hidden"
             />
             {imagePreview && (
-              <div className="relative inline-block border border-green-800 mt-2">
-                <img src={imagePreview} alt="Preview" className="max-h-24 w-auto object-contain bg-gray-900" />
+              <div className="relative mt-2 border border-green-800 bg-gray-900 w-fit max-w-full group">
+                <img src={imagePreview} alt="Preview" className="max-h-32 max-w-[200px] object-contain block" />
                 <button
                   type="button"
                   onClick={() => { setImageFile(null); setImagePreview(null); }}
-                  className="absolute -top-2 -right-2 bg-red-600 text-black border border-white w-6 h-6 flex items-center justify-center text-xs font-bold"
+                  className="absolute -top-2 -right-2 bg-red-600 text-black border border-white w-6 h-6 flex items-center justify-center text-xs font-bold shadow-[2px_2px_0_black] z-10"
                 >
                   X
                 </button>

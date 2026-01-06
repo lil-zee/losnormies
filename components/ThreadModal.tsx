@@ -307,7 +307,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                                     <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
                                 </div>
                                 {reply.imageUrl && (
-                                    <img src={reply.imageUrl} alt="" className="object-contain mb-2 border border-green-900/50" style={{ maxHeight: '150px' }} />
+                                    <img src={reply.imageUrl} alt="" className="object-contain mb-2 border border-green-900/50" style={{ maxHeight: '150px', maxWidth: '100%' }} />
                                 )}
                                 {reply.text && <div className={`text-gray-300 font-mono text-sm break-all whitespace-pre-wrap w-full overflow-hidden`}><MarkdownContent content={reply.text} /></div>}
                             </div>
@@ -321,12 +321,12 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 <div className="p-4 bg-black border-t-2 border-green-600 relative z-20">
                     <form onSubmit={handleSubmitReply}>
                         {replyImagePreview && (
-                            <div className="mb-2 relative inline-block max-w-[150px]">
-                                <img src={replyImagePreview} alt="Preview" className="max-h-20 w-auto object-contain border border-green-500" />
+                            <div className="mb-2 relative border border-green-800 bg-gray-900 w-fit max-w-full group">
+                                <img src={replyImagePreview} alt="Preview" className="max-h-32 max-w-[200px] object-contain block" style={{ maxWidth: '200px' }} />
                                 <button
                                     type="button"
                                     onClick={() => { setReplyImage(null); setReplyImagePreview(null); }}
-                                    className="absolute -top-2 -right-2 bg-red-600 text-black font-bold w-5 h-5 flex items-center justify-center text-xs border border-white"
+                                    className="absolute -top-2 -right-2 bg-red-600 text-black font-bold w-6 h-6 flex items-center justify-center text-xs border border-white shadow-[2px_2px_0_black]"
                                 >
                                     X
                                 </button>
