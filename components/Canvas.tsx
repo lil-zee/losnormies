@@ -51,7 +51,10 @@ export default function Canvas() {
   };
 
   useEffect(() => {
-    fetchPosts();
+    const timer = setTimeout(() => {
+      fetchPosts();
+    }, 600);
+    return () => clearTimeout(timer);
   }, [viewport.minX, viewport.maxX, viewport.minY, viewport.maxY]);
 
   const handleWheel = (e: React.WheelEvent) => {

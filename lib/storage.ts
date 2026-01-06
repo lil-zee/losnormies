@@ -26,15 +26,15 @@ export async function uploadImage(
   // Development: use local filesystem
   const uploadsDir = join(process.cwd(), 'public', 'uploads');
   await mkdir(uploadsDir, { recursive: true });
-  
+
   const filepath = join(uploadsDir, filename);
   await writeFile(filepath, buffer);
-  
+
   return `/uploads/${filename}`;
 }
 
 export function validateImage(file: File): { valid: boolean; error?: string } {
-  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_SIZE = 1 * 1024 * 1024; // 1MB
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
   if (!ALLOWED_TYPES.includes(file.type)) {
