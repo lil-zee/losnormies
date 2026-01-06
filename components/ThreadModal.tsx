@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { relativeTime } from '@/utils/relativeTime';
 import { compressImage } from '@/utils/imageCompression';
+import { getColorClasses } from '@/utils/colors';
 import MarkdownContent from './MarkdownContent';
 
 interface Reply {
@@ -151,7 +152,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div
-                className="bg-black w-full max-w-2xl border-2 border-green-500 flex flex-col max-h-[85vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] relative overflow-hidden"
+                className="bg-black w-[90vw] max-w-4xl border-2 border-green-500 flex flex-col h-[80vh] shadow-[0_0_30px_rgba(0,255,0,0.3)] relative overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* CRT Scanline Overlay for Modal */}
@@ -189,7 +190,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             </div>
                         )}
                         {thread.text && (
-                            <div className="text-green-400 text-lg mb-2 font-mono break-words whitespace-pre-wrap w-full overflow-hidden">
+                            <div className="text-green-400 text-lg mb-2 font-mono break-all whitespace-pre-wrap w-full overflow-hidden">
                                 <MarkdownContent content={thread.text} />
                             </div>
                         )}
@@ -199,18 +200,21 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
 
                 {/* Replies */}
                 <div className="space-y-2">
-                    {thread.replies?.map((reply, i) => (
-                        <div key={reply.id} className="bg-black p-3 border-l-4 border-green-700 ml-4">
-                            <div className="text-xs text-green-600 mb-1 flex justify-between font-mono">
-                                <span>ANONYMOUS {i + 1}</span>
-                                <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
+                    {thread.replies?.map((reply, i) => {
+                        const colors = getColorClasses(reply.ipHash);
+                        return (
+                            <div key={reply.id} className={`bg-black p-3 border-l-4 ${colors.border} ml-4`}>
+                                <div className={`text-xs ${colors.text} mb-1 flex justify-between font-mono`}>
+                                    <span>ANONYMOUS {i + 1}</span>
+                                    <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
+                                </div>
+                                {reply.imageUrl && (
+                                    <img src={reply.imageUrl} alt="" className="max-h-64 object-contain mb-2 border border-green-900/50" />
+                                )}
+                                {reply.text && <div className={`text-gray-300 font-mono text-sm break-all whitespace-pre-wrap w-full overflow-hidden`}><MarkdownContent content={reply.text} /></div>}
                             </div>
-                            {reply.imageUrl && (
-                                <img src={reply.imageUrl} alt="" className="max-h-64 object-contain mb-2 border border-green-900/50" />
-                            )}
-                            {reply.text && <div className="text-green-300 font-mono break-words whitespace-pre-wrap w-full overflow-hidden"><MarkdownContent content={reply.text} /></div>}
-                        </div>
-                    ))}
+                        );
+                    })}
                     {(!thread.replies || thread.replies.length === 0) && (
                         <p className="text-green-800 text-center py-4 italic font-mono">NO REPLIES YET.</p>
                     )}

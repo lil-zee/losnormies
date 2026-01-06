@@ -14,25 +14,62 @@ body {
   font-family: 'Courier New', 'Lucida Console', monospace;
   overflow: hidden;
   text-shadow: 0 0 2px var(--matrix-dark);
+  cursor: crosshair;
 }
 
-/* CRT Scanline Overlay */
+/* THE GRID BACKGROUND (Perspective) */
+body::before {
+  content: "";
+  position: fixed;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background-image: 
+    linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-100px);
+  animation: gridFly 20s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes gridFly {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-100px); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-100px); }
+}
+
+/* CRT SCANLINE OVERLAY */
 body::after {
   content: " ";
   display: block;
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  top: 0; left: 0; bottom: 0; right: 0;
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
   z-index: 30;
-  /* Moved down from 9999 to be below Navigation/Modals but above Canvas */
-  background-size: 100% 2px, 3px 100%;
+  background-size: 100% 4px, 6px 100%;
   pointer-events: none;
+  opacity: 0.6;
 }
 
-/* ... existing styles ... */
+/* GLITCH HOVER EFFECT */
+.glitch-hover:hover {
+  animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+  color: #fff;
+  text-shadow: 2px 0 #ff00c1, -2px 0 #00fff9;
+}
+
+@keyframes glitch-skew {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 2px) }
+  40% { transform: translate(-2px, -2px) }
+  60% { transform: translate(2px, 2px) }
+  80% { transform: translate(2px, -2px) }
+  100% { transform: translate(0) }
+}
+
+/* COMPONENTS */
 
 .post-card {
   position: absolute;
@@ -42,33 +79,20 @@ body::after {
   padding: 10px;
   box-shadow: 0 0 5px var(--matrix-dark), inset 0 0 10px rgba(0, 50, 0, 0.5);
   user-select: none;
-  /* Remove generalized transition to make dragging instant/smooth */
-  /* transition: all 0.1s; <- REMOVED */
   transition: box-shadow 0.2s, border-color 0.2s, transform 0.1s;
-  /* Keep hover effects, but maybe transform is bad for drag? Will handle in component style */
-  animation: flicker 0.3s infinite;
-  animation-iteration-count: 0;
 }
 
 .post-card:hover {
   z-index: 50;
   border-color: #fff;
   box-shadow: 0 0 15px var(--matrix-green), inset 0 0 20px rgba(0, 255, 0, 0.2);
-  /* transform: scale(1.02); <- Removed scale on hover to prevent jitter during drag start */
 }
 
 .post-card.dragging {
   transition: none !important;
-  /* Critical for smooth drag */
   z-index: 100;
   box-shadow: 0 0 30px var(--matrix-green);
-}
-
-.post-card:hover {
-  z-index: 50;
-  border-color: #fff;
-  box-shadow: 0 0 15px var(--matrix-green), inset 0 0 20px rgba(0, 255, 0, 0.2);
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .retro-button {
@@ -94,61 +118,16 @@ body::after {
   transform: translate(2px, 2px);
 }
 
-.markdown-content {
-  font-size: 14px;
-  line-height: 1.6;
-}
+/* MARKDOWN STYLES */
+.markdown-content { font-size: 14px; line-height: 1.6; }
+.markdown-content h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; }
+.markdown-content h2 { font-size: 1.3em; font-weight: bold; margin-bottom: 0.4em; }
+.markdown-content a { color: #60a5fa; text-decoration: none; }
+.markdown-content a:hover { text-decoration: underline; }
+.markdown-content code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; }
+.markdown-content pre { background: #1a1a1a; padding: 12px; border-radius: 6px; overflow-x: auto; margin-bottom: 0.8em; }
 
-.markdown-content h1 {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin-bottom: 0.5em;
-}
-
-.markdown-content h2 {
-  font-size: 1.3em;
-  font-weight: bold;
-  margin-bottom: 0.4em;
-}
-
-.markdown-content h3 {
-  font-size: 1.1em;
-  font-weight: bold;
-  margin-bottom: 0.3em;
-}
-
-.markdown-content p {
-  margin-bottom: 0.8em;
-}
-
-.markdown-content code {
-  background: #1a1a1a;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.9em;
-}
-
-.markdown-content pre {
-  background: #1a1a1a;
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
-  margin-bottom: 0.8em;
-}
-
-.markdown-content a {
-  color: #60a5fa;
-  text-decoration: none;
-}
-
-.markdown-content a:hover {
-  text-decoration: underline;
-}
-
-.markdown-content strong {
-  font-weight: bold;
-}
-
-.markdown-content em {
-  font-style: italic;
+/* Global Cursor Override */
+button, a, input, textarea, select, .clickable {
+  cursor: pointer;
 }

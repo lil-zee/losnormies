@@ -84,7 +84,7 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
         </button>
         <button
           onClick={onCreateClick}
-          className="retro-button px-4 py-1 text-sm"
+          className="retro-button px-4 py-1 text-sm glitch-hover"
         >
           [ NEW POST ]
         </button>
