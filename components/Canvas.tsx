@@ -36,6 +36,7 @@ export default function Canvas() {
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showIdentityModal, setShowIdentityModal] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [showNSFW, setShowNSFW] = useState(false);
 
   // Touch States
   const lastTouchRef = useRef<{ x: number, y: number } | null>(null);
@@ -221,6 +222,8 @@ export default function Canvas() {
         onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
         isLive={isLive}
         onToggleLive={() => setIsLive(!isLive)}
+        showNSFW={showNSFW}
+        onToggleNSFW={() => setShowNSFW(!showNSFW)}
       />
 
       <div
@@ -245,7 +248,7 @@ export default function Canvas() {
             height: '100%',
           }}
         >
-          {posts.map((post) => (
+          {posts.filter(p => showNSFW || !p.isNSFW).map((post) => (
             <PostCard
               key={post.id}
               post={post}

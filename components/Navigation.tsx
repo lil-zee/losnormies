@@ -9,9 +9,11 @@ interface Props {
   onLoginClick: () => void;
   isLive: boolean;
   onToggleLive: () => void;
+  showNSFW: boolean;
+  onToggleNSFW: () => void;
 }
 
-export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive }: Props) {
+export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive, showNSFW, onToggleNSFW }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -58,6 +60,14 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
         </form>
       </div>
       <div className="flex gap-2 z-10">
+        <button
+          onClick={onToggleNSFW}
+          className={`retro-button px-2 py-1 text-sm ${showNSFW ? 'bg-red-600 text-black border-red-600' : 'text-red-500 border-red-900'}`}
+          title="Toggle NSFW Content"
+        >
+          <span className="hidden md:inline">[ NSFW: {showNSFW ? 'ON' : 'OFF'} ]</span>
+          <span className="md:hidden">{showNSFW ? '[!]' : '[safe]'}</span>
+        </button>
         <button
           onClick={onToggleLive}
           className={`retro-button px-2 py-1 text-sm ${isLive ? 'bg-green-500 text-black border-green-500' : 'text-green-500'}`}
