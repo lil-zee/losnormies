@@ -170,7 +170,7 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
 
   return (
     <div
-      className={`post-card animate-enter ${isVisualDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : 'cursor-grab'} ${isSelected ? 'active-glow' : ''}`}
+      className={`post-card animate-enter bg-black/85 backdrop-blur-md ${isVisualDragging ? 'cursor-grabbing shadow-2xl scale-105 z-50' : 'cursor-grab'} ${isSelected ? 'active-glow' : ''}`}
       style={{ left: position.x, top: position.y, position: 'absolute' }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
@@ -198,8 +198,8 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
       )}
 
       {post.imageUrl && (
-        <div className={`mb-2 pointer-events-none transition-all duration-500 ${isBlurry ? 'filter blur-xl opacity-50' : ''}`}>
-          <img src={post.imageUrl} alt="" className="w-full h-32 object-cover rounded" />
+        <div className={`mb-2 pointer-events-none transition-all duration-500 flex justify-center bg-gray-900/50 ${isBlurry ? 'filter blur-xl opacity-50' : ''}`}>
+          <img src={post.imageUrl} alt="" className="w-auto h-auto max-h-48 max-w-full object-contain rounded" />
         </div>
       )}
       {post.text && (

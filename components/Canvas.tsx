@@ -38,6 +38,7 @@ export default function Canvas() {
   const [showIdentityModal, setShowIdentityModal] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [showNSFW, setShowNSFW] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   // Touch States
   const lastTouchRef = useRef<{ x: number, y: number } | null>(null);
@@ -51,12 +52,8 @@ export default function Canvas() {
     const uToken = localStorage.getItem('userToken');
     if (uToken) setUserToken(uToken);
 
-    // Center canvas initially
-    // Small timeout to ensure window size is correct and hydration is done
-    setTimeout(() => {
-      centerOn(0, 0);
-      handleZoom(-0.2); // Initial zoom out to 0.8 (starts at 1)
-    }, 100);
+    // Center canvas initially (Fallback if no fetch)
+    // Removed strict timeout centerOn(0,0) to prefer smart center
   }, []);
 
   const fetchPosts = async () => {
@@ -69,7 +66,25 @@ export default function Canvas() {
     try {
       const res = await fetch(`/api/posts?${params}`);
       const data = await res.json();
-      setPosts(data.posts || []);
+      const loadedPosts = data.posts || [];
+      setPosts(loadedPosts);
+
+      // Smart Center on First Load
+      if (!initialLoadDone && loadedPosts.length > 0) {
+        const avgX = loadedPosts.reduce((sum: number, p: Post) => sum + p.x, 0) / loadedPosts.length;
+        const avgY = loadedPosts.reduce((sum: number, p: Post) => sum + p.y, 0) / loadedPosts.length;
+        // Small delay to ensure render
+        setTimeout(() => {
+          centerOn(avgX, avgY);
+          handleZoom(-0.2);
+        }, 100);
+        setInitialLoadDone(true);
+      } else if (!initialLoadDone) {
+        // No posts, center 0,0
+        setTimeout(() => { centerOn(0, 0); handleZoom(-0.2); }, 100);
+        setInitialLoadDone(true);
+      }
+
     } catch (err) {
       console.error('Failed to fetch posts:', err);
     }
