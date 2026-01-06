@@ -151,7 +151,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div
-                className="bg-black w-full max-w-md border-2 border-green-600 flex flex-col max-h-[90vh] shadow-[8px_8px_0px_#003300]"
+                className="bg-black w-full max-w-lg border-2 border-green-600 flex flex-col max-h-[90vh] shadow-[8px_8px_0px_#003300]"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -186,7 +186,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             </div>
                         )}
                         {thread.text && (
-                            <div className="text-green-400 text-lg mb-2 font-mono">
+                            <div className="text-green-400 text-lg mb-2 font-mono break-words whitespace-pre-wrap">
                                 <MarkdownContent content={thread.text} />
                             </div>
                         )}
@@ -205,7 +205,7 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                             {reply.imageUrl && (
                                 <img src={reply.imageUrl} alt="" className="max-h-64 object-contain mb-2 border border-green-900/50" />
                             )}
-                            {reply.text && <div className="text-green-300 font-mono"><MarkdownContent content={reply.text} /></div>}
+                            {reply.text && <div className="text-green-300 font-mono break-words whitespace-pre-wrap"><MarkdownContent content={reply.text} /></div>}
                         </div>
                     ))}
                     {(!thread.replies || thread.replies.length === 0) && (
@@ -245,12 +245,11 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                                 className="hidden"
                             />
 
-                            <input
-                                type="text"
+                            <textarea
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
                                 placeholder="REPLY..."
-                                className="flex-1 bg-black border border-green-600 px-3 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900"
+                                className="flex-1 bg-black border border-green-600 px-3 py-2 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900 resize-none h-12 text-sm"
                             />
 
                             <button
