@@ -38,7 +38,8 @@ interface Props {
     userToken?: string | null;
     onRequestIdentity?: () => void;
 // Helper for foolproof colors
-const getHexColor = (id: string) => {
+const getHexColor = (id: string | null | undefined) => {
+    if (!id) return '#00ff41';
     const colors = ['#00ff41', '#00ffff', '#ff00ff', '#f59e0b', '#ec4899']; // Green, Cyan, Magenta, Amber, Pink
     let hash = 0;
     for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
