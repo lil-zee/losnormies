@@ -10,6 +10,7 @@ import IdentityModal from './IdentityModal';
 import Minimap from './Minimap';
 import ListViewModal from './ListViewModal';
 import { useSound } from '@/hooks/useSound';
+import CRTOverlay from './CRTOverlay';
 
 interface Post {
   id: string;
