@@ -232,15 +232,15 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
     if (!thread) return null;
 
     return (
-        <div style={{ position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh', zIndex: 50, pointerEvents: 'none' }}>
-            {/* Blurred Backdrop */}
+        <div style={{ position: 'fixed', left: 0, top: 0, width: '100vw', height: '100vh', zIndex: 1000, pointerEvents: 'none' }}>
+            {/* Transparent backdrop for clicking out */}
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto transition-opacity duration-500"
+                className="absolute inset-0 pointer-events-auto"
                 onClick={onClose}
             />
 
             <div
-                className={`flex flex-col shadow-[0_0_40px_rgba(0,255,0,0.15)] overflow-visible bg-[#050505] border border-green-900 pointer-events-auto ${isMobile ? 'fixed inset-0 w-full h-full z-[100]' : 'absolute'}`}
+                className={`win95-window flex flex-col pointer-events-auto shadow-xl ${isMobile ? 'fixed inset-0 w-full h-full' : 'absolute'}`}
                 style={!isMobile ? {
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     width: size.width,
@@ -248,155 +248,124 @@ export default function ThreadModal({ post, onClose, adminToken, onAdminDelete, 
                 } : {}}
                 onClick={e => e.stopPropagation()}
             >
-                {/* Tech Corners */}
-                {!isMobile && (
-                    <>
-                        <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-green-500 z-50" />
-                        <div className="absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-green-500 z-50" />
-                        <div className="absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-green-500 z-50" />
-                        <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-green-500 z-50" />
-                    </>
-                )}
-
-                {/* CRT Scanline Overlay for Modal */}
-                <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
-
-                {/* Header (Draggable Handle) */}
+                {/* Title Bar */}
                 <div
-                    className="p-3 border-b-2 border-green-600 flex justify-between items-center bg-gray-900 shrink-0 relative z-20 cursor-move"
+                    className="win95-title-bar cursor-move select-none"
                     onMouseDown={handleMouseDown}
                 >
-                    <h2 className="text-base font-bold text-green-500 font-mono tracking-wider truncate pr-2">
-                        THREAD: {thread.id.substring(0, 8)}
-                        {/* Admin Delete Button */}
+                    <div className="flex items-center gap-1">
+                        <span className="font-bold">Notepad - {thread.shortId}</span>
+                    </div>
+                    <div className="flex gap-1">
                         {adminToken && (
-                            <button
-                                onClick={handleAdminDelete}
-                                className="ml-4 bg-red-900/50 text-red-500 border border-red-500 px-2 text-xs hover:bg-red-900"
-                            >
-                                [DELETE]
-                            </button>
+                            <button onClick={handleAdminDelete} className="win95-btn bg-red-100 text-[10px] px-1 h-4">DEL</button>
                         )}
-                    </h2>
-                    <button onClick={onClose} className="text-green-500 hover:text-white font-mono">[X]</button>
-                </div>
-
-                {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                    {/* Main Post */}
-                    <div className="mb-6 border-b border-green-900 pb-4">
-                        <div className="text-xs text-green-800 font-mono mb-2 flex justify-between">
-                            <span>{relativeTime(thread.createdAt)}</span>
-                            <span>ID: {thread.shortId}</span>
-                        </div>
-
-                        {thread.imageUrl && (
-                            <div className="mb-4 flex justify-center bg-gray-900/30">
-                                <img
-                                    src={thread.imageUrl}
-                                    alt=""
-                                    className="object-contain border border-green-900"
-                                    style={{ maxHeight: '250px', maxWidth: '100%', width: 'auto' }}
-                                />
-                            </div>
-                        )}
-                        {thread.text && (
-                            <div className="text-green-400 text-lg mb-2 font-mono break-words w-full overflow-hidden">
-                                <MarkdownContent content={thread.text} />
-                            </div>
-                        )}
-                        POSTED {relativeTime(thread.createdAt).toUpperCase()}
+                        <button onClick={onClose} className="win95-btn w-4 h-4 p-0 leading-none">X</button>
                     </div>
                 </div>
 
-                {/* Replies */}
-                <div className="space-y-2">
-                    {thread.replies?.map((reply, i) => {
-                        // Total Anonymity: Color based on Reply ID
-                        const color = getHexColor(reply.id);
-                        const uniqueId = reply.id.slice(0, 8);
-
-                        return (
-                            <div key={reply.id} className="bg-black/40 p-4 border-b border-green-900/30 last:border-0" style={{ borderLeft: `4px solid ${color}` }}>
-                                <div className="text-xs mb-1 flex justify-between font-mono" style={{ color: color }}>
-                                    <span>ID: {uniqueId}</span>
-                                    <span>{relativeTime(reply.createdAt).toUpperCase()}</span>
-                                </div>
-                                {reply.imageUrl && (
-                                    <img src={reply.imageUrl} alt="" className="object-contain mb-2 border border-green-900/50" style={{ maxHeight: '150px', maxWidth: '100%' }} />
-                                )}
-                                {reply.text && <div className={`text-gray-300 font-mono text-sm break-all whitespace-pre-wrap w-full overflow-hidden`}><MarkdownContent content={reply.text} /></div>}
-                            </div>
-                        );
-                    })}
-                    {(!thread.replies || thread.replies.length === 0) && (
-                        <p className="text-green-800 text-center py-4 italic font-mono">NO REPLIES YET.</p>
-                    )}
+                {/* Menu Bar */}
+                <div className="flex bg-[#c0c0c0] px-1 py-0.5 border-b border-gray-400 text-xs gap-3">
+                    <span className="underline">F</span>ile
+                    <span className="underline">E</span>dit
+                    <span className="underline">S</span>earch
+                    <span className="underline">H</span>elp
                 </div>
-                {/* Reply Form */}
-                <div className="p-4 bg-black border-t-2 border-green-600 relative z-20">
-                    <form onSubmit={handleSubmitReply}>
-                        {replyImagePreview && (
-                            <div className="mb-2 relative border border-green-800 bg-gray-900 w-fit max-w-full group">
-                                <img src={replyImagePreview} alt="Preview" className="max-h-32 max-w-[200px] object-contain block" style={{ maxWidth: '200px' }} />
-                                <button
-                                    type="button"
-                                    onClick={() => { setReplyImage(null); setReplyImagePreview(null); }}
-                                    className="absolute -top-2 -right-2 bg-red-600 text-black font-bold w-6 h-6 flex items-center justify-center text-xs border border-white shadow-[2px_2px_0_black]"
-                                >
-                                    X
-                                </button>
+
+                {/* Main Content Area */}
+                <div className="flex-1 bg-white border-t-2 border-l-2 border-[#808080] border-r-2 border-b-2 border-[#fff] mx-1 my-1 overflow-hidden flex flex-col">
+                    <div className="flex-1 overflow-y-auto p-2">
+                        {/* OP Post */}
+                        <div className="mb-4">
+                            <div className="text-xs text-gray-500 mb-1 flex justify-between border-b border-gray-300 pb-1">
+                                <span>{relativeTime(thread.createdAt)}</span>
+                                <span className="font-bold text-black">#{thread.shortId}</span>
                             </div>
-                        )}
 
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="px-3 py-2 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono"
-                                title="Add Image"
-                            >
-                                IMG
-                            </button>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className="hidden"
-                            />
+                            {thread.imageUrl && (
+                                <div className="mb-2 flex justify-center bg-[#808080] p-1 border border-black">
+                                    <img
+                                        src={thread.imageUrl}
+                                        alt=""
+                                        className="object-contain max-h-[300px]"
+                                        style={{ maxWidth: '100%' }}
+                                    />
+                                </div>
+                            )}
+                            {thread.text && (
+                                <div className="text-black text-sm font-[font-family:'MS_Sans_Serif'] break-words">
+                                    <MarkdownContent content={thread.text} />
+                                </div>
+                            )}
+                        </div>
 
+                        {/* Replies */}
+                        <div className="space-y-1 bg-[#e0e0e0] p-1 border-t border-gray-400">
+                            <div className="text-xs font-bold text-gray-600 mb-1">{thread.replies?.length || 0} Comments</div>
+                            {thread.replies?.map((reply) => {
+                                const color = getHexColor(reply.id); // Keeping color for identity distinction
+                                return (
+                                    <div key={reply.id} className="bg-white border border-gray-400 p-1 text-sm mb-1">
+                                        <div className="text-[10px] text-gray-500 mb-1 flex justify-between bg-[#f0f0f0] px-1">
+                                            <span style={{ color: '#000', fontWeight: 'bold' }}>{reply.id.slice(0, 8)}</span>
+                                            <span>{relativeTime(reply.createdAt)}</span>
+                                        </div>
+                                        {reply.imageUrl && (
+                                            <div className="mb-1">
+                                                <img src={reply.imageUrl} className="max-h-32 object-contain border border-gray-300" />
+                                            </div>
+                                        )}
+                                        {reply.text && <div className="px-1"><MarkdownContent content={reply.text} /></div>}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Reply Form (Bottom docked) */}
+                    <div className="bg-[#c0c0c0] border-t border-gray-400 p-1">
+                        <form onSubmit={handleSubmitReply}>
                             <textarea
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="REPLY..."
-                                className="flex-1 bg-black border border-green-600 px-3 py-2 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900 resize-none h-12 text-sm"
+                                placeholder="Write a reply..."
+                                className="w-full h-12 border-2 border-[#808080] bg-white text-sm p-1 font-sans resize-none mb-1 focus:outline-none"
                             />
-
-                            <button
-                                type="submit"
-                                disabled={isSubmitting || (!replyText && !replyImage)}
-                                className="bg-green-700 text-black font-bold px-4 py-2 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase"
-                            >
-                                {isSubmitting ? '...' : 'Send'}
-                            </button>
-                        </div>
-                        {error && <p className="text-red-500 text-xs mt-2 font-mono">{error}</p>}
-                    </form>
+                            <div className="flex justify-between items-center">
+                                <div className="flex gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="win95-btn px-2 py-0.5 text-xs"
+                                    >
+                                        Attach...
+                                    </button>
+                                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                    {replyImagePreview && <span className="text-xs text-blue-800 ml-2">Image Attached</span>}
+                                </div>
+                                <button type="submit" disabled={isSubmitting} className="win95-btn px-4 py-0.5 font-bold text-xs">
+                                    {isSubmitting ? 'Sending...' : 'Post Reply'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                {/* Resize Handle (Desktop Only) */}
+                {/* Resize Handle */}
                 {!isMobile && (
                     <div
-                        className="absolute bottom-0 right-0 w-6 h-6 bg-green-500/20 cursor-se-resize z-50 flex items-end justify-end p-1"
+                        className="absolute bottom-1 right-1 w-4 h-4 cursor-se-resize flex items-end justify-end p-0.5"
                         onMouseDown={handleResizeMouseDown}
                     >
-                        <div className="w-2 h-2 border-r-2 border-b-2 border-green-500"></div>
+                        {/* Grip lines */}
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="gray">
+                            <line x1="0" y1="10" x2="10" y2="0" stroke="gray" strokeWidth="1" />
+                            <line x1="3" y1="10" x2="10" y2="3" stroke="gray" strokeWidth="1" />
+                            <line x1="6" y1="10" x2="10" y2="6" stroke="gray" strokeWidth="1" />
+                        </svg>
                     </div>
                 )}
             </div>
         </div>
-
-
     );
 }

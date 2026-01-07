@@ -77,41 +77,31 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
 
   if (deleteToken) {
     return (
-      <div className="fixed inset-0 z-[100] pointer-events-none">
-        {/* Blurred Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm pointer-events-auto transition-opacity duration-300"
-          onClick={onClose}
-        />
-
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="bg-[#050505] border border-green-900 p-6 w-full max-w-lg mx-4 shadow-[0_0_40px_rgba(0,255,0,0.15)] pointer-events-auto animate-enter relative overflow-visible">
-            {/* Tech Corners */}
-            <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-green-500" />
-            <div className="absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-green-500" />
-            <div className="absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-green-500" />
-            <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-green-500" />
-
-            <div className="flex justify-between items-center border-b border-green-900/50 pb-4 mb-4">
-              <h3 className="text-xl font-bold text-green-500 font-mono uppercase tracking-widest">POST CREATED</h3>
-              <button onClick={onClose} className="text-green-500 hover:text-white font-mono text-lg">[X]</button>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-auto bg-black/20 backdrop-blur-[2px]">
+        <div className="win95-window w-80 shadow-xl">
+          <div className="win95-title-bar mb-2">
+            <span>Success</span>
+            <button onClick={onClose} className="win95-btn leading-none p-0 w-4 h-4">X</button>
+          </div>
+          <div className="p-2 text-center text-sm">
+            <div className="flex items-center gap-2 mb-4 justify-center">
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-serif italic text-xl flex items-center justify-center border-2 border-white shadow-md">i</div>
+              <p>Post created successfully.</p>
             </div>
-            <p className="text-green-800 mb-2 font-mono text-sm">SAVE THIS TOKEN TO DELETE LATER:</p>
-            <div className="bg-green-900/10 p-3 border border-green-500 mb-4 font-mono text-sm break-all text-green-300 select-all">
+
+            <p className="mb-1 text-xs text-gray-600">Delete Token (Save this):</p>
+            <div className="win95-inset bg-white p-1 select-all font-mono text-xs mb-4">
               {deleteToken}
             </div>
-            <button
-              onClick={() => { navigator.clipboard.writeText(deleteToken); }}
-              className="bg-black hover:bg-green-900 text-green-500 border border-green-500 px-4 py-2 w-full mb-2 font-mono uppercase"
-            >
-              [ COPY TOKEN ]
-            </button>
-            <button
-              onClick={() => { onClose(); setDeleteToken(null); setText(''); setImageFile(null); setImagePreview(null); }}
-              className="bg-green-600 hover:bg-green-500 text-black border-2 border-green-600 px-4 py-2 w-full font-bold font-mono uppercase shadow-[4px_4px_0px_white]"
-            >
-              CLOSE
-            </button>
+
+            <div className="flex justify-center">
+              <button
+                onClick={() => { onClose(); setDeleteToken(null); setText(''); setImageFile(null); setImagePreview(null); }}
+                className="win95-btn px-4 py-1 font-bold"
+              >
+                OK
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,116 +109,94 @@ export default function CreatePostModal({ isOpen, onClose, x, y, onPostCreated, 
   }
 
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none">
-      {/* Blurred Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm pointer-events-auto transition-opacity duration-300"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-teal-800/20 backdrop-blur-[1px]">
+      {/* Click outside to close */}
+      <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-0 md:p-4">
-        <div
-          className="bg-[#050505] w-full h-full md:h-auto md:max-w-lg border border-green-900 shadow-[0_0_40px_rgba(0,255,0,0.15)] flex flex-col md:max-h-[90vh] pointer-events-auto animate-enter relative overflow-visible"
-          onClick={e => e.stopPropagation()}
-        >
-          {/* Tech Corners */}
-          <div className="hidden md:block absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-green-500 z-50" />
-          <div className="hidden md:block absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-green-500 z-50" />
-          <div className="hidden md:block absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-green-500 z-50" />
-          <div className="hidden md:block absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-green-500 z-50" />
-
-          <div className="p-4 border-b border-green-900/50 flex justify-between items-center bg-green-900/5">
-            <h2 className="text-base font-bold text-green-500 font-mono tracking-wider glow-sm">NEW POST</h2>
-            <button onClick={onClose} className="text-green-500 hover:text-white font-mono hover:glow-sm transition-all">[X]</button>
+      <div className="win95-window w-full max-w-md relative shadow-2xl" onClick={e => e.stopPropagation()}>
+        {/* Title Bar */}
+        <div className="win95-title-bar mb-1">
+          <div className="flex items-center gap-1">
+            <img src="/floppy.png" className="w-4 h-4" alt="" />
+            <span>New Post</span>
           </div>
+          <button onClick={onClose} className="win95-btn w-4 h-4 p-0 leading-none">X</button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4 overflow-y-auto">
-            <div>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="WRITE SOMETHING..."
-                className="w-full h-24 bg-black border border-green-600 p-2 text-green-400 focus:outline-none focus:border-green-400 font-mono placeholder-green-900 resize-none text-sm"
-              />
-              <div className="text-[10px] text-green-800 mt-1 font-mono text-right">MARKDOWN SUPPORTED</div>
-            </div>
+        {/* Menu Bar */}
+        <div className="flex gap-3 text-xs px-2 mb-2">
+          <span className="underline">F</span>ile
+          <span className="underline">E</span>dit
+          <span className="underline">O</span>ptions
+        </div>
 
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1 bg-black border border-green-500 text-green-500 hover:bg-green-900 font-mono text-xs"
-                >
-                  [ UPLOAD IMAGE ]
-                </button>
-                <span className="text-[10px] text-green-700 font-mono">MAX 1MB</span>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-              {imagePreview && (
-                <div className="relative mt-2 border border-green-800 bg-gray-900 w-fit max-w-full group">
-                  <img src={imagePreview} alt="Preview" className="max-h-32 max-w-[200px] object-contain block" />
-                  <button
-                    type="button"
-                    onClick={() => { setImageFile(null); setImagePreview(null); }}
-                    className="absolute -top-2 -right-2 bg-red-600 text-black border border-white w-6 h-6 flex items-center justify-center text-xs font-bold shadow-[2px_2px_0_black] z-10"
-                  >
-                    X
-                  </button>
-                </div>
-              )}
-            </div>
+        <form onSubmit={handleSubmit} className="p-2">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="What's on your mind?"
+            className="w-full h-32 win95-inset p-2 text-sm font-sans resize-none focus:outline-none mb-2 bg-white text-black"
+          />
 
-            <div className="flex items-center gap-2 border border-red-900/50 p-2 bg-red-900/10">
-              <input
-                type="checkbox"
-                id="nsfw-check"
-                checked={isNSFW}
-                onChange={e => setIsNSFW(e.target.checked)}
-                className="accent-red-500 w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="nsfw-check" className="text-red-500 font-mono text-xs cursor-pointer select-none font-bold">
-                MARK AS NSFW / SPOILER
+          <div className="grid grid-cols-[auto_1fr] gap-4 mb-4">
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="win95-btn px-3 py-1 text-xs"
+              >
+                Attach Image...
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+
+              <label className="flex items-center gap-1 text-xs cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isNSFW}
+                  onChange={e => setIsNSFW(e.target.checked)}
+                  className="accent-black"
+                />
+                <span>NSFW</span>
               </label>
             </div>
 
-
-            {error && <div className="text-red-500 text-sm font-mono border border-red-900 p-2 bg-red-900/10">ERROR: {error}</div>}
-
-            {deleteToken && (
-              <div className="bg-green-900/20 border border-green-600 p-3">
-                <p className="text-green-400 text-xs font-mono mb-1">SAVE THIS TOKEN TO DELETE LATER:</p>
-                <code className="block bg-black p-1 text-green-300 font-mono text-sm select-all border border-green-900">{deleteToken}</code>
-              </div>
-            )}
-
-            <div className="flex justify-end pt-2 border-t border-green-900">
-              {!deleteToken ? (
-                <button
-                  type="submit"
-                  disabled={isLoading || (!text && !imageFile)}
-                  className="bg-green-600 text-black font-bold px-6 py-2 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase shadow-[4px_4px_0px_#003300]"
-                >
-                  {isLoading ? 'UPLOADING...' : 'POST IT'}
-                </button>
+            <div className="win95-inset bg-white p-1 h-20 flex items-center justify-center bg-gray-100">
+              {imagePreview ? (
+                <div className="relative h-full w-full group">
+                  <img src={imagePreview} className="h-full w-full object-contain" />
+                  <button
+                    type="button"
+                    onClick={() => { setImageFile(null); setImagePreview(null); }}
+                    className="absolute top-0 right-0 bg-red-600 text-white w-4 h-4 leading-none flex items-center justify-center text-xs"
+                  >
+                    x
+                  </button>
+                </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={onPostCreated}
-                  className="bg-blue-600 text-white font-bold px-6 py-2 hover:bg-blue-500 font-mono uppercase border-2 border-white shadow-[4px_4px_0px_white]"
-                >
-                  DONE
-                </button>
+                <span className="text-gray-400 text-xs italic">No image selected</span>
               )}
             </div>
-          </form>
-        </div>
+          </div>
+
+          {error && <div className="text-red-600 text-xs mb-2 text-center bg-red-100 border border-red-300 p-1">{error}</div>}
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-gray-400">
+            <button
+              type="button"
+              onClick={onClose}
+              className="win95-btn px-4 py-1 min-w-[80px]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading || (!text && !imageFile)}
+              className="win95-btn px-4 py-1 font-bold min-w-[80px] disabled:text-gray-500"
+            >
+              {isLoading ? 'Posting...' : 'Post'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
