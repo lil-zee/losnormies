@@ -239,89 +239,107 @@ export default function Canvas() {
           const jitterX = (Math.random() - 0.5) * 100;
           const jitterY = (Math.random() - 0.5) * 100;
           setCreatePosition({ x: centerX + jitterX, y: centerY + jitterY });
+          <CRTOverlay />
+
+          {/* BACKGROUND (Fixed) */ }
+          <div className="fixed inset-0 z-0 bg-[#008080] pointer-events-none">
+            {/* Optional: Tiled Windows Logo or pattern here */}
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+          </div>
+
+          {/* MAIN CONTENT FEED */ }
+          <div
+            className="relative z-10 min-h-screen w-full overflow-y-auto overflow-x-hidden pt-4 pb-20 px-4"
+            style={{ touchAction: 'pan-y' }} // Allow vertical scroll only
+          >
+            <div className="max-w-[1600px] mx-auto flex flex-wrap gap-6 justify-center content-start items-start pb-20">
+              {posts.map((post) => (
+                <div key={post.id} className="relative group">
+                  <PostCard
+                    post={post}
+                    onClick={() => {
+                      playOpen();
+                      setSelectedPost(post);
+                    }}
+                    adminToken={userToken} // Using userToken as admin for now if logic matches
+                    onAdminDelete={async () => {
+                      // ... existing delete logic
+                      try {
+                        await fetch(`/api/posts/${post.id}`, {
+                          method: 'DELETE',
+                          headers: userToken ? { 'x-user-token': userToken } : {}
+                        });
+                        reloadPosts();
+                      } catch (e) { console.error(e); }
+                    }}
+                    isSelected={selectedPost?.id === post.id}
+                    // Disable dragging, enable static layout
+                    isStatic={true}
+                  />
+                </div>
+              ))}
+
+              {/* Empty State */}
+              {posts.length === 0 && (
+                <div className="win95-window p-8 text-center mt-20 bg-white">
+                  <h2 className="font-bold text-xl mb-2">Welcome to Your Desktop</h2>
+                  <p className="mb-4">No content found. Start by creating a new post.</p>
+                  <button onClick={() => { playOpen(); setShowCreateModal(true); }} className="win95-btn px-4 py-2 font-bold">
+                    Start
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {
+            selectedPost && (
+              <ThreadModal
+                post={selectedPost}
+                onClose={() => setSelectedPost(null)}
+                adminToken={userToken}
+                userToken={userToken}
+                onAdminDelete={() => {
+                  // Same delete logic
+                  reloadPosts();
+                  setSelectedPost(null);
+                }}
+                onRequestIdentity={() => { playOpen(); setShowIdentityModal(true); }}
+              />
+            )
+          }
+
+          {/* Navigation / Taskbar */ }
+      <Navigation
+        postsCount={posts.length}
+        onlineCount={1}
+        onToggleLive={() => {}}
+        isLive={false}
+        showNSFW={showNSFW}
+        onToggleNSFW={() => setShowNSFW(prev => !prev)}
+        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
+        onCreateClick={() => {
+          playOpen();
+          // Reset create position to center or top? Modal handles center.
+          setCreatePosition({ x: 0, y: 0 }); 
           setShowCreateModal(true);
         }}
-        currentZoom={zoom}
-        onZoomChange={handleZoom}
-        userToken={userToken}
-        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
-        isLive={isLive}
-        onToggleLive={() => setIsLive(!isLive)}
-        showNSFW={showNSFW}
-        onToggleNSFW={() => setShowNSFW(!showNSFW)}
         onListClick={() => setShowListModal(true)}
+        userToken={userToken}
+        searchTerm={searchTerm} // These might be unused now but keeping props
       />
-
-      <div
-        className={`canvas-container ${isDragging ? 'grabbing' : ''}`}
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onContextMenu={handleCanvasRightClick}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{ paddingTop: '0px', paddingBottom: '40px', touchAction: 'none' }}
-      >
-        <div
-          style={{
-            transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
-            transformOrigin: '0 0',
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          {posts.filter(p => showNSFW || !p.isNSFW).map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onClick={() => { playOpen(); setSelectedPost(post); }}
-              adminToken={adminToken}
-              onAdminDelete={() => handleDeletePost(post.id)}
-              isSelected={selectedPost?.id === post.id}
-            />
-          ))}
-        </div>
-
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-40 opacity-70 hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => handleZoom(0.1)}
-            className="bg-black hover:bg-green-900 text-green-500 w-10 h-10 border border-green-500 font-mono text-xl shadow-[2px_2px_0px_#003300]"
-          >
-            +
-          </button>
-          <button
-            onClick={() => handleZoom(-0.1)}
-            className="bg-black hover:bg-green-900 text-green-500 w-10 h-10 border border-green-500 font-mono text-xl shadow-[2px_2px_0px_#003300]"
-          >
-            -
-          </button>
-          <div className="text-xs text-center text-green-400 bg-black border border-green-900 px-2 py-1 font-mono">{Math.round(zoom * 100)}%</div>
-        </div>
-      </div>
 
       <CreatePostModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        x={createPosition.x}
-        y={createPosition.y}
-        onPostCreated={() => { setShowCreateModal(false); fetchPosts(); }}
+        x={0} // Irrelevant in vertical layout
+        y={0}
+        onPostCreated={() => {
+          playSuccess();
+          reloadPosts(); // Force reload to see new post at top/bottom
+        }}
         userToken={userToken}
       />
-
-      {selectedPost && (
-        <ThreadModal
-          post={selectedPost}
-          onClose={() => setSelectedPost(null)}
-          adminToken={adminToken}
-          onAdminDelete={() => handleDeletePost(selectedPost.id)}
-          userToken={userToken}
-          onRequestIdentity={() => setShowIdentityModal(true)}
-        />
-      )}
 
       <IdentityModal
         isOpen={showIdentityModal}
@@ -333,13 +351,9 @@ export default function Canvas() {
         }}
       />
 
-      {/* Sidebar removed for Win95 Desktop feel */}
-
       <ListViewModal
         isOpen={showListModal}
         onClose={() => setShowListModal(false)}
-        posts={posts.filter(p => showNSFW || !p.isNSFW)}
-        onSelectPost={(post) => {
           playOpen();
           // Center closely on the post
           centerOn(post.x, post.y);

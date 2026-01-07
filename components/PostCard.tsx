@@ -22,9 +22,10 @@ interface Props {
   adminToken?: string | null;
   onAdminDelete?: () => void;
   isSelected?: boolean;
+  isStatic?: boolean; // New prop for vertical feed
 }
 
-export default function PostCard({ post, onClick, adminToken, onAdminDelete, isSelected }: Props) {
+export default function PostCard({ post, onClick, adminToken, onAdminDelete, isSelected, isStatic = false }: Props) {
   const [position, setPosition] = useState({ x: post.x, y: post.y });
   const [isVisualDragging, setIsVisualDragging] = useState(false);
   const [likes, setLikes] = useState(post.likes);
@@ -33,6 +34,9 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
   const { playSuccess, playClick } = useSound();
 
   const isBlurry = post.isNSFW && !isRevealed;
+
+  // Force static layout implies no dragging
+  const effectiveIsDragging = isStatic ? false : isVisualDragging;
 
   useEffect(() => {
     const liked = localStorage.getItem(`liked_${post.id}`);
@@ -184,14 +188,16 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
   // Windows 95 Aesthetic - No random rotation, solid opacity
   return (
     <div
-      className={`post-card win95-window absolute ${isVisualDragging ? 'cursor-move z-[9999]' : ''} ${isSelected ? 'z-[50]' : 'z-10'}`}
+      className={`post-card win95-window ${isStatic ? 'relative mb-4 mx-2' : 'absolute'} ${effectiveIsDragging ? 'cursor-move z-[9999]' : ''} ${isSelected ? 'z-[50] ring-1 ring-blue-500' : 'z-10'}`}
       style={{
-        left: position.x,
-        top: position.y,
+        // If static, ignore x/y. If absolute, use x/y.
+        left: isStatic ? undefined : position.x,
+        top: isStatic ? undefined : position.y,
         width: '320px',
+        maxWidth: '100%',
         // No rotation, full opacity
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={isStatic ? undefined : handleMouseDown} // Disable drag if static
       onClick={handleClick}
     >
       {/* TITLE BAR */}
