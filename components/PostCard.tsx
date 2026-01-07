@@ -181,74 +181,78 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
     rotation.current = (hash % 5) - 2;
   }, [post.id]);
 
+  // Windows 95 Aesthetic - No random rotation, solid opacity
   return (
     <div
-      className={`post-card animate-enter transition-transform duration-200 ease-out ${isVisualDragging ? 'cursor-grabbing scale-105 z-[9999]' : 'cursor-grab'} ${isSelected ? 'ring-1 ring-white z-[50]' : ''}`}
+      className={`post-card win95-window absolute ${isVisualDragging ? 'cursor-move z-[9999]' : ''} ${isSelected ? 'z-[50]' : 'z-10'}`}
       style={{
         left: position.x,
         top: position.y,
-        position: 'absolute',
-        opacity: isSelected ? 1 : opacity,
-        transform: `rotate(${rotation.current}deg)`,
-        backgroundColor: '#111',
-        border: '1px solid #333',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        width: '320px',
+        // No rotation, full opacity
       }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
     >
-      {adminToken && onAdminDelete && (
+      {/* TITLE BAR */}
+      <div className={`win95-title-bar ${isSelected ? '' : 'inactive'} select-none`}>
+        <div className="flex items-center gap-1">
+          <img src="/floppy.png" className="w-4 h-4" alt="" /> {/* Placeholder icon */}
+          <span>{post.shortId || 'Untitled'}</span>
+        </div>
+        <div className="flex gap-1">
+          <button className="win95-btn w-4 h-4 p-0 leading-none" onClick={(e) => { e.stopPropagation(); /* Minimize? */ }}>_</button>
+          <button className="win95-btn w-4 h-4 p-0 leading-none" onClick={handleReport}>X</button>
+        </div>
+      </div>
+
+      {/* MENU BAR (Fake) */}
+      <div className="flex bg-[#c0c0c0] px-1 py-0.5 border-b border-gray-400 text-xs gap-3">
+        <span className="underline">F</span>ile
+        <span className="underline">E</span>dit
+        <span className="underline">V</span>iew
+        <span className="underline">H</span>elp
+      </div>
+
+      {/* CONTENT AREA */}
+      <div className="bg-white m-1 border-t-2 border-l-2 border-[#808080] border-r border-b border-[#fff] p-2 min-h-[100px] overflow-y-auto max-h-[400px]">
+        {post.imageUrl && (
+          <div className="mb-2 flex justify-center bg-black">
+            <img src={post.imageUrl} alt="" className="max-h-48 object-contain" />
+          </div>
+        )}
+        {post.text && (
+          <div className="font-[font-family:'MS_Sans_Serif'] text-sm">
+            <MarkdownContent content={post.text} />
+          </div>
+        )}
+      </div>
+
+      {/* STATUS BAR */}
+      <div className="mt-1 border-t border-gray-400 pt-1 flex justify-between items-center text-xs px-1 text-gray-700">
+        <span>{relativeTime(post.createdAt)}</span>
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdminDelete();
-          }}
-          className="absolute -top-3 -right-3 bg-red-600 text-black font-bold text-xs px-2 py-1 z-[60] hover:bg-red-500 border-2 border-white shadow-[2px_2px_0px_black]"
+          className={`win95-btn px-2 py-0 ${hasLiked ? 'font-bold text-blue-800' : ''}`}
+          onClick={handleLike}
         >
-          [DEL]
+          {likes} Likes
         </button>
-      )}
+      </div>
+
       {isBlurry && (
-        <div
-          className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 cursor-pointer backdrop-blur-sm transition-opacity hover:bg-black/50"
-          onClick={(e) => { e.stopPropagation(); setIsRevealed(true); }}
-        >
-          <div className="bg-red-600 text-black font-bold px-2 py-1 border-2 border-white tracking-widest text-xs shadow-[2px_2px_0_black]">
-            SPOILER / NSFW
+        <div className="absolute inset-x-1 top-8 bottom-8 z-20 bg-[#c0c0c0] flex items-center justify-center border-2 border-dashed border-black">
+          <div className="text-center">
+            <p className="font-bold mb-2">WARNING</p>
+            <p className="mb-2">NSFW Content Detected</p>
+            <button className="win95-btn px-4 py-1" onClick={(e) => { e.stopPropagation(); setIsRevealed(true); }}>
+              Proceed
+            </button>
           </div>
         </div>
       )}
 
-      {post.imageUrl && (
-        <div className={`mb-2 pointer-events-none transition-all duration-500 flex justify-center bg-gray-900/50 ${isBlurry ? 'filter blur-xl opacity-50' : ''}`}>
-          <img src={post.imageUrl} alt="" className="w-auto h-auto max-h-48 max-w-full object-contain rounded" />
-        </div>
-      )}
-      {post.text && (
-        <div className={`text-sm max-h-[600px] overflow-y-auto mb-2 pointer-events-auto custom-scrollbar transition-all duration-500 break-words ${isBlurry ? 'filter blur-sm opacity-50 pointer-events-none' : ''}`}>
-          <MarkdownContent content={post.text} />
-        </div>
-      )}
-      <div className="flex justify-between items-center text-xs text-gray-500 border-t border-green-900/30 pt-2 mt-2 pointer-events-none">
-        <span>#{post.shortId.slice(0, 8)}</span>
-        <div className="flex gap-3 items-center">
-          <button
-            className="text-gray-600 hover:text-red-500 font-bold pointer-events-auto"
-            onClick={handleReport}
-            title="Report Post"
-          >
-            [!]
-          </button>
-          <button
-            className={`flex items-center gap-1 hover:text-green-300 ${hasLiked ? 'text-green-400 font-bold' : ''} pointer-events-auto`}
-            onClick={handleLike}
-          >
-            {hasLiked ? '★' : '☆'} {likes}
-          </button>
-          <span>{relativeTime(post.createdAt)}</span>
-          {post.replyCount > 0 && <span>💬 {post.replyCount}</span>}
-        </div>
-      </div>
+      {/* SHADOW (Windows 95 doesn't really have shadows, but maybe a hard black drop) */}
+      <div className="absolute -right-1 -bottom-1 w-full h-full -z-10 bg-black pointer-events-none" />
     </div>
   );
 }

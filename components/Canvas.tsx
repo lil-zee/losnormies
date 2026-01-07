@@ -7,7 +7,6 @@ import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
-import Sidebar from './Sidebar';
 import Minimap from './Minimap';
 import ListViewModal from './ListViewModal';
 import { useSound } from '@/hooks/useSound';
@@ -264,7 +263,7 @@ export default function Canvas() {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ paddingTop: '60px', touchAction: 'none' }}
+        style={{ paddingTop: '0px', paddingBottom: '40px', touchAction: 'none' }}
       >
         <div
           style={{
@@ -334,14 +333,7 @@ export default function Canvas() {
         }}
       />
 
-      <Sidebar
-        posts={posts.filter(p => showNSFW || !p.isNSFW)}
-        onSelect={(post) => {
-          playOpen();
-          centerOn(post.x, post.y);
-          setSelectedPost(post);
-        }}
-      />
+      {/* Sidebar removed for Win95 Desktop feel */}
 
       <ListViewModal
         isOpen={showListModal}

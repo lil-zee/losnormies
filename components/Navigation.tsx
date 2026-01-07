@@ -39,89 +39,45 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-14 bg-black/90 backdrop-blur-md border-b border-green-900/50 z-[100] px-4 flex items-center gap-3 shadow-[0_2px_20px_rgba(0,255,65,0.1)] justify-between relative">
-      <div className="flex items-center gap-4">
-        {/* Title centered absolutely with retro font */}
-        <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl md:text-4xl font-bold tracking-tighter font-mono uppercase select-none pointer-events-none whitespace-nowrap"
-          style={{
-            color: '#fff',
-            textShadow: '0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff41'
-          }}>
-          LOS NORMIES
-        </h1>
+    <nav className="fixed bottom-0 left-0 right-0 h-10 bg-[#c0c0c0] border-t-2 border-white flex items-center px-1 py-1 z-[1000] shadow-[0_-2px_2px_rgba(0,0,0,0.1)] justify-between select-none">
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-xs relative z-10 hidden md:block">
-          <input
-            type="text"
-            placeholder="SEARCH..."
-            className="w-full bg-black border-2 border-green-600 text-green-400 px-2 py-1 focus:outline-none focus:bg-green-900/20 font-mono text-sm placeholder-green-800"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </form>
+      {/* START BUTTON */}
+      <button
+        onClick={onCreateClick}
+        className="win95-btn font-bold px-2 py-1 flex items-center gap-1 active:translate-y-1 mr-2"
+        style={{ boxShadow: '1.5px 1.5px 0px 0.5px rgba(0,0,0,0.8)' }}
+      >
+        <div className="w-4 h-4 bg-gradient-to-br from-red-500 via-green-500 to-blue-500 grayscale opacity-80" /> {/* Windows Flag Fake */}
+        Start
+      </button>
+
+      {/* TASKBAR ITEMS (Active Windows mimics) */}
+      <div className="flex-1 flex items-center gap-1 overflow-x-auto pl-2 border-l-2 border-l-[#808080] border-r-2 border-r-white h-full px-1">
+        <button className="win95-btn bg-[#e0e0e0] border-inset flex items-center gap-1 px-2 py-0.5 w-32 justify-start active text-xs font-bold" onClick={onListClick}>
+          <span className="w-3 h-3 bg-yellow-400 border border-black" />
+          Explorer
+        </button>
+        {/* Placeholder for open post */}
+        <button className="win95-btn flex items-center gap-1 px-2 py-0.5 w-32 justify-start text-xs opacity-70">
+          <span className="w-3 h-3 bg-white border border-black" />
+          My Computer
+        </button>
       </div>
-      <div className="flex gap-2 z-10">
-        <button
-          onClick={onToggleNSFW}
-          className={`retro-button px-3 py-1.5 text-sm transition-all duration-300 ${showNSFW ? 'bg-red-900 text-red-400 glow-sm' : 'text-gray-600 border-gray-700 hover:border-red-900'}`}
-          title="Toggle NSFW Content"
-        >
-          <span className="hidden md:inline">[ NSFW: {showNSFW ? 'ON' : 'OFF'} ]</span>
-          <span className="md:hidden">{showNSFW ? '[!]' : '[safe]'}</span>
+
+      {/* SYSTEM TRAY */}
+      <div className="flex items-center gap-1 pl-2 border-l-2 border-[#808080] ml-1 h-full bg-transparent win95-inset px-2 py-0.5 text-xs">
+        <button onClick={onToggleLive} title="Live Feed">
+          {isLive ? '🔴' : '⚪'}
         </button>
-        <button
-          onClick={onToggleLive}
-          className={`retro-button px-2 py-1 text-sm ${isLive ? 'bg-green-500 text-black border-green-500' : 'text-green-500'}`}
-        >
-          <span className="hidden md:inline">[ LIVE: {isLive ? 'ON' : 'OFF'} ]</span>
-          <span className="md:hidden">{isLive ? '[L:ON]' : '[L:OFF]'}</span>
+        <button onClick={onToggleNSFW} title="Safety" className="text-[10px] hidden md:block">
+          {showNSFW ? 'NSFW' : 'SAFE'}
         </button>
-        <button
-          onClick={() => {
-            const token = localStorage.getItem('adminToken');
-            if (token) {
-              localStorage.removeItem('adminToken');
-              window.location.reload();
-            } else {
-              const secret = prompt('ENTER ADMIN SECRET:');
-              if (secret) {
-                localStorage.setItem('adminToken', secret);
-                window.location.reload();
-              }
-            }
-          }}
-          className="retro-button px-2 py-1 text-sm bg-black text-green-700 border-green-800 hover:text-green-500 hover:border-green-500"
-          title="Admin Mode"
-        >
-          {typeof window !== 'undefined' && localStorage.getItem('adminToken') ? '[LOGOUT]' : '[KEY]'}
+        <button onClick={onLoginClick} title="User">
+          👤
         </button>
-        <button
-          onClick={onLoginClick}
-          className="retro-button px-2 py-1 text-sm bg-black text-blue-500 border-blue-900 hover:text-blue-400 hover:border-blue-500"
-          title="Identity"
-        >
-          {userToken ? (
-            <>
-              <span className="hidden md:inline">[ID:{userToken.substring(0, 6)}]</span>
-              <span className="md:hidden">[ID]</span>
-            </>
-          ) : '[LOGIN]'}
-        </button>
-        <button
-          onClick={onListClick}
-          className="retro-button px-2 py-1 text-sm bg-black text-yellow-500 border-yellow-800 hover:text-yellow-400 hover:border-yellow-500"
-          title="List View"
-        >
-          <span className="hidden md:inline">[ LIST ]</span>
-          <span className="md:hidden">[≣]</span>
-        </button>
-        <button
-          onClick={onCreateClick}
-          className="retro-button px-4 py-1 text-sm glitch-hover"
-        >
-          <span className="hidden md:inline">[ NEW POST ]</span>
-          <span className="md:hidden">[ + ]</span>
-        </button>
+        <span className="ml-2 font-mono">
+          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
       </div>
     </nav>
   );
