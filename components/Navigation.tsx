@@ -71,10 +71,10 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
         </button>
         <button
           onClick={onToggleLive}
-          className={`px-2 py-1 transition-all duration-300 hover:scale-110 ${isLive ? 'opacity-100 drop-shadow-[0_0_8px_#00ff41]' : 'opacity-40 grayscale'}`}
-          title={isLive ? "LIVE FEED: ON" : "LIVE FEED: OFF"}
+          className={`retro-button px-2 py-1 text-sm ${isLive ? 'bg-green-500 text-black border-green-500' : 'text-green-500'}`}
         >
-          <img src="/eye.png" alt="Live Feed" className="w-10 h-6 object-contain" />
+          <span className="hidden md:inline">[ LIVE: {isLive ? 'ON' : 'OFF'} ]</span>
+          <span className="md:hidden">{isLive ? '[L:ON]' : '[L:OFF]'}</span>
         </button>
         <button
           onClick={() => {
@@ -109,18 +109,18 @@ export default function Navigation({ onCreateClick, currentZoom, onZoomChange, u
         </button>
         <button
           onClick={onListClick}
-          className="px-2 py-1 hover:scale-110 transition-transform duration-200"
-          title="Archive List"
+          className="retro-button px-2 py-1 text-sm bg-black text-yellow-500 border-yellow-800 hover:text-yellow-400 hover:border-yellow-500"
+          title="List View"
         >
-          <img src="/folder.png" alt="List View" className="w-8 h-8 object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]" />
+          <span className="hidden md:inline">[ LIST ]</span>
+          <span className="md:hidden">[≣]</span>
         </button>
         <button
           onClick={onCreateClick}
-          className="px-2 py-1 hover:scale-110 hover:-rotate-6 transition-all duration-200 group relative"
-          title="New Post"
+          className="retro-button px-4 py-1 text-sm glitch-hover"
         >
-          <div className="absolute -inset-2 bg-green-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-          <img src="/floppy.png" alt="New Post" className="w-9 h-9 object-contain drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] relative z-10" />
+          <span className="hidden md:inline">[ NEW POST ]</span>
+          <span className="md:hidden">[ + ]</span>
         </button>
       </div>
     </nav>
