@@ -3,8 +3,6 @@ import { useState } from 'react';
 
 interface Props {
   onCreateClick: () => void;
-  currentZoom: number;
-  onZoomChange: (delta: number) => void;
   userToken?: string | null;
   onLoginClick: () => void;
   isLive: boolean;
@@ -14,7 +12,7 @@ interface Props {
   onListClick: () => void;
 }
 
-export default function Navigation({ onCreateClick, currentZoom, onZoomChange, userToken, onLoginClick, isLive, onToggleLive, showNSFW, onToggleNSFW, onListClick }: Props) {
+export default function Navigation({ onCreateClick, userToken, onLoginClick, isLive, onToggleLive, showNSFW, onToggleNSFW, onListClick }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {

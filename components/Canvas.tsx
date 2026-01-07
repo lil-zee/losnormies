@@ -301,8 +301,6 @@ export default function Canvas() {
 
       {/* Navigation / Taskbar */}
       <Navigation
-        postsCount={posts.length}
-        onlineCount={1}
         onToggleLive={() => setIsLive(!isLive)}
         isLive={isLive}
         showNSFW={showNSFW}
@@ -316,7 +314,6 @@ export default function Canvas() {
         }}
         onListClick={() => setShowListModal(true)}
         userToken={userToken}
-        searchTerm="" // Unused
       />
 
       <IdentityModal
