@@ -339,7 +339,8 @@ export default function Canvas() {
         }}
       />
 
-      <Minimap posts={posts} pan={pan} zoom={zoom} />
+      {/* Minimap Removed as requested */}
+      {/* <Minimap posts={posts} pan={pan} zoom={zoom} /> */}
 
       {toastMsg && (
         <div className="fixed top-20 right-4 bg-green-500 text-black px-4 py-2 font-mono font-bold animate-enter border-2 border-white shadow-[4px_4px_0_black] z-50 md:top-24 md:right-8">

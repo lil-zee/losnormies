@@ -3,6 +3,11 @@ import { useCallback } from 'react';
 
 export function useSound() {
   const playTone = useCallback((freq: number, type: OscillatorType, duration: number, vol: number = 0.05) => {
+    // Sound disabled per user request
+    return;
+
+    // Original code commented out for reference/future enable
+    /*
     if (typeof window === 'undefined') return;
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
@@ -22,14 +27,15 @@ export function useSound() {
     
     osc.start();
     osc.stop(ctx.currentTime + duration);
+    */
   }, []);
 
   const playHover = useCallback(() => playTone(1000, 'sine', 0.03, 0.02), [playTone]);
   const playClick = useCallback(() => playTone(600, 'square', 0.08, 0.05), [playTone]);
   const playOpen = useCallback(() => playTone(200, 'sawtooth', 0.2, 0.05), [playTone]);
   const playSuccess = useCallback(() => {
-     playTone(880, 'square', 0.1, 0.05);
-     setTimeout(() => playTone(1760, 'square', 0.2, 0.05), 100);
+    playTone(880, 'square', 0.1, 0.05);
+    setTimeout(() => playTone(1760, 'square', 0.2, 0.05), 100);
   }, [playTone]);
 
   return { playHover, playClick, playOpen, playSuccess };

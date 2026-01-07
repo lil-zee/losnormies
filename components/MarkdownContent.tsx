@@ -42,7 +42,7 @@ export default function MarkdownContent({ content }: Props) {
                     onClick={(e) => e.stopPropagation()}
                   />
                   {videoId && (
-                    <div className="mt-2 w-full min-h-[200px] aspect-video bg-black border border-green-900 overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="mt-2 w-full max-w-[480px] aspect-[4/3] mx-auto bg-black border border-green-900 overflow-hidden" onClick={e => e.stopPropagation()}>
                       <iframe
                         src={`https://www.youtube.com/embed/${videoId}`}
                         className="w-full h-full"
