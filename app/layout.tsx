@@ -6,10 +6,15 @@ export const metadata: Metadata = {
   description: 'Post anywhere on an infinite canvas. Completely anonymous.',
 };
 
+import CRTOverlay from '@/components/CRTOverlay';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
-      <body>{children}</body>
+      <body>
+        <CRTOverlay />
+        {children}
+      </body>
     </html>
   );
 }
