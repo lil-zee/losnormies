@@ -169,10 +169,31 @@ export default function PostCard({ post, onClick, adminToken, onAdminDelete, isS
     }
   };
 
+  // Decay Logic: Fades out over 72 hours, minimum 0.2 opacity
+  const ageHours = (Date.now() - new Date(post.createdAt).getTime()) / (1000 * 60 * 60);
+  const opacity = Math.max(0.4, 1 - (ageHours / 72));
+
+  // Sticker Rotation (deterministic based on ID)
+  const rotation = useRef(0);
+  useEffect(() => {
+    // Simple deterministic random for rotation (-2deg to 2deg)
+    const hash = post.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    rotation.current = (hash % 5) - 2;
+  }, [post.id]);
+
   return (
     <div
-      className={`post-card animate-enter bg-black/90 backdrop-blur-sm transition-all duration-300 ${isVisualDragging ? 'cursor-grabbing scale-105 z-50 glow-lg' : 'cursor-grab glow-sm'} ${isSelected ? 'active-glow' : ''}`}
-      style={{ left: position.x, top: position.y, position: 'absolute' }}
+      className={`post-card animate-enter transition-transform duration-200 ease-out ${isVisualDragging ? 'cursor-grabbing scale-105 z-[9999]' : 'cursor-grab'} ${isSelected ? 'ring-1 ring-white z-[50]' : ''}`}
+      style={{
+        left: position.x,
+        top: position.y,
+        position: 'absolute',
+        opacity: isSelected ? 1 : opacity,
+        transform: `rotate(${rotation.current}deg)`,
+        backgroundColor: '#111',
+        border: '1px solid #333',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+      }}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
     >

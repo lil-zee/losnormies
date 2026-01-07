@@ -234,10 +234,12 @@ export default function Canvas() {
         onCreateClick={() => {
           if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
           playOpen();
-          // Create at center of current view
+          // Create at center of current view with random JITTER (Chaos)
           const centerX = (window.innerWidth / 2 - pan.x) / zoom;
           const centerY = (window.innerHeight / 2 - pan.y) / zoom;
-          setCreatePosition({ x: centerX, y: centerY });
+          const jitterX = (Math.random() - 0.5) * 100;
+          const jitterY = (Math.random() - 0.5) * 100;
+          setCreatePosition({ x: centerX + jitterX, y: centerY + jitterY });
           setShowCreateModal(true);
         }}
         currentZoom={zoom}
