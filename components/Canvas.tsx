@@ -7,6 +7,7 @@ import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
+import Sidebar from './Sidebar';
 import Minimap from './Minimap';
 import ListViewModal from './ListViewModal';
 import { useSound } from '@/hooks/useSound';
@@ -56,6 +57,11 @@ export default function Canvas() {
 
     // Center canvas initially (Fallback if no fetch)
     // Removed strict timeout centerOn(0,0) to prefer smart center
+
+    // MOBILE FIRST: Open List View automatically
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setShowListModal(true);
+    }
   }, []);
 
   const fetchPosts = async () => {
@@ -323,6 +329,15 @@ export default function Canvas() {
           setUserToken(token);
           localStorage.setItem('userToken', token);
           setShowIdentityModal(false);
+        }}
+      />
+
+      <Sidebar
+        posts={posts.filter(p => showNSFW || !p.isNSFW)}
+        onSelect={(post) => {
+          playOpen();
+          centerOn(post.x, post.y);
+          setSelectedPost(post);
         }}
       />
 
