@@ -227,118 +227,95 @@ export default function Canvas() {
     }
   };
 
+  // Vertical Scroll Layout (Win95 Feed)
   return (
     <>
-      <Navigation
-        onCreateClick={() => {
-          if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
-          playOpen();
-          // Create at center of current view with random JITTER (Chaos)
-          const centerX = (window.innerWidth / 2 - pan.x) / zoom;
-          const centerY = (window.innerHeight / 2 - pan.y) / zoom;
-          const jitterX = (Math.random() - 0.5) * 100;
-          const jitterY = (Math.random() - 0.5) * 100;
-          setCreatePosition({ x: centerX + jitterX, y: centerY + jitterY });
-          <CRTOverlay />
+      <CRTOverlay />
 
-          {/* BACKGROUND (Fixed) */ }
-          <div className="fixed inset-0 z-0 bg-[#008080] pointer-events-none">
-            {/* Optional: Tiled Windows Logo or pattern here */}
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-          </div>
+      {/* BACKGROUND (Fixed) */}
+      <div className="fixed inset-0 z-0 bg-[#008080] pointer-events-none">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+      </div>
 
-          {/* MAIN CONTENT FEED */ }
-          <div
-            className="relative z-10 min-h-screen w-full overflow-y-auto overflow-x-hidden pt-4 pb-20 px-4"
-            style={{ touchAction: 'pan-y' }} // Allow vertical scroll only
-          >
-            <div className="max-w-[1600px] mx-auto flex flex-wrap gap-6 justify-center content-start items-start pb-20">
-              {posts.map((post) => (
-                <div key={post.id} className="relative group">
-                  <PostCard
-                    post={post}
-                    onClick={() => {
-                      playOpen();
-                      setSelectedPost(post);
-                    }}
-                    adminToken={userToken} // Using userToken as admin for now if logic matches
-                    onAdminDelete={async () => {
-                      // ... existing delete logic
-                      try {
-                        await fetch(`/api/posts/${post.id}`, {
-                          method: 'DELETE',
-                          headers: userToken ? { 'x-user-token': userToken } : {}
-                        });
-                        reloadPosts();
-                      } catch (e) { console.error(e); }
-                    }}
-                    isSelected={selectedPost?.id === post.id}
-                    // Disable dragging, enable static layout
-                    isStatic={true}
-                  />
-                </div>
-              ))}
-
-              {/* Empty State */}
-              {posts.length === 0 && (
-                <div className="win95-window p-8 text-center mt-20 bg-white">
-                  <h2 className="font-bold text-xl mb-2">Welcome to Your Desktop</h2>
-                  <p className="mb-4">No content found. Start by creating a new post.</p>
-                  <button onClick={() => { playOpen(); setShowCreateModal(true); }} className="win95-btn px-4 py-2 font-bold">
-                    Start
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {
-            selectedPost && (
-              <ThreadModal
-                post={selectedPost}
-                onClose={() => setSelectedPost(null)}
-                adminToken={userToken}
-                userToken={userToken}
-                onAdminDelete={() => {
-                  // Same delete logic
-                  reloadPosts();
-                  setSelectedPost(null);
+      {/* MAIN CONTENT FEED */}
+      <div
+        className="relative z-10 min-h-screen w-full overflow-y-auto overflow-x-hidden pt-4 pb-20 px-4"
+        style={{ touchAction: 'pan-y' }}
+      >
+        <div className="max-w-[1600px] mx-auto flex flex-wrap gap-6 justify-center content-start items-start pb-20">
+          {posts.map((post) => (
+            <div key={post.id} className="relative group">
+              <PostCard
+                post={post}
+                onClick={() => {
+                  playOpen();
+                  setSelectedPost(post);
                 }}
-                onRequestIdentity={() => { playOpen(); setShowIdentityModal(true); }}
+                adminToken={userToken}
+                onAdminDelete={() => handleDeletePost(post.id)}
+                isSelected={selectedPost?.id === post.id}
+                isStatic={true}
               />
-            )
-          }
+            </div>
+          ))}
 
-          {/* Navigation / Taskbar */ }
-      <Navigation
-        postsCount={posts.length}
-        onlineCount={1}
-        onToggleLive={() => {}}
-        isLive={false}
-        showNSFW={showNSFW}
-        onToggleNSFW={() => setShowNSFW(prev => !prev)}
-        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
-        onCreateClick={() => {
-          playOpen();
-          // Reset create position to center or top? Modal handles center.
-          setCreatePosition({ x: 0, y: 0 }); 
-          setShowCreateModal(true);
-        }}
-        onListClick={() => setShowListModal(true)}
-        userToken={userToken}
-        searchTerm={searchTerm} // These might be unused now but keeping props
-      />
+          {/* Empty State */}
+          {posts.length === 0 && (
+            <div className="win95-window p-8 text-center mt-20 bg-white">
+              <h2 className="font-bold text-xl mb-2">Welcome to Your Desktop</h2>
+              <p className="mb-4">No content found. Start by creating a new post.</p>
+              <button onClick={() => { playOpen(); setShowCreateModal(true); }} className="win95-btn px-4 py-2 font-bold">
+                Start
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <CreatePostModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        x={0} // Irrelevant in vertical layout
+        x={0}
         y={0}
         onPostCreated={() => {
           playSuccess();
-          reloadPosts(); // Force reload to see new post at top/bottom
+          fetchPosts(); // Reload posts
         }}
         userToken={userToken}
+      />
+
+      {selectedPost && (
+        <ThreadModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          adminToken={userToken}
+          userToken={userToken}
+          onAdminDelete={() => {
+            fetchPosts();
+            setSelectedPost(null);
+          }}
+          onRequestIdentity={() => { playOpen(); setShowIdentityModal(true); }}
+        />
+      )}
+
+      {/* Navigation / Taskbar */}
+      <Navigation
+        postsCount={posts.length}
+        onlineCount={1}
+        onToggleLive={() => setIsLive(!isLive)}
+        isLive={isLive}
+        showNSFW={showNSFW}
+        onToggleNSFW={() => setShowNSFW(prev => !prev)}
+        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
+        onCreateClick={() => {
+          if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
+          playOpen();
+          setCreatePosition({ x: 0, y: 0 });
+          setShowCreateModal(true);
+        }}
+        onListClick={() => setShowListModal(true)}
+        userToken={userToken}
+        searchTerm="" // Unused
       />
 
       <IdentityModal
@@ -354,12 +331,14 @@ export default function Canvas() {
       <ListViewModal
         isOpen={showListModal}
         onClose={() => setShowListModal(false)}
+        posts={posts.filter(p => showNSFW || !p.isNSFW)}
+        onSelect={(post) => {
           playOpen();
-          // Center closely on the post
           centerOn(post.x, post.y);
-          // Open it
           setSelectedPost(post);
+          setShowListModal(false);
         }}
+        isLoading={false}
       />
 
       {/* Minimap Removed as requested */}
