@@ -70,9 +70,9 @@ export default function Canvas() {
       <div className="min-h-screen pb-20 pt-4 px-1 md:px-2">
         {/* Header Centrado */}
         <div className="flex flex-col items-center justify-center mb-6 relative">
-             <h1 className="text-3xl md:text-5xl glow font-bold tracking-widest text-center">LOS NORMIES</h1>
-             <div className="absolute right-0 top-1 hidden md:block">
-                 <button onClick={handleNewPost} className="btn-bracket text-sm">NEW THREAD</button>
+             <h1 className="text-3xl md:text-5xl glow font-bold tracking-widest text-center select-none text-[var(--matrix-green-bright)]">LOS NORMIES</h1>
+             <div className="absolute right-2 top-1 hidden md:block">
+                 <button onClick={handleNewPost} className="btn-bracket text-sm hover:text-white transition-colors">NEW THREAD</button>
              </div>
              {/* Mobile New Button debajo por si acaso */}
              <div className="mt-4 md:hidden">
@@ -92,7 +92,7 @@ export default function Canvas() {
               {sortedPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="post-card cursor-pointer group relative bg-black border border-[var(--border-color)] hover:border-[var(--matrix-green)] transition-colors"
+                  className="post-card cursor-pointer group relative bg-black border border-[var(--border-color)] hover:border-[var(--matrix-green)] hover:z-10 transition-colors"
                   onClick={() => { playOpen(); setSelectedPost(post); }}
                 >
                   {/* Thumbnail Ratio 1:1 estricto */}
@@ -107,7 +107,7 @@ export default function Canvas() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center p-2 bg-[var(--bg-dark)]">
                          <span className="text-[var(--matrix-green-dim)] text-xs text-center break-all font-mono leading-tight opacity-50 select-none">
-                           {post.text?.slice(0,40) || 'TEXT'}
+                           {post.text ? post.text.slice(0,40) : 'TEXT'}
                          </span>
                       </div>
                     )}
@@ -120,8 +120,8 @@ export default function Canvas() {
                     )}
                     
                     {/* Stats overlay bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-1 pt-4 flex justify-between items-end">
-                       <span className="text-[9px] text-white/50">{post.replyCount > 0 ? R: : ''}</span>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-1 pt-4 flex justify-between items-end pointer-events-none">
+                       <span className="text-[9px] text-white/70 font-bold">{post.replyCount > 0 ? 'R:' + post.replyCount : ''}</span>
                     </div>
                   </div>
                 </div>
