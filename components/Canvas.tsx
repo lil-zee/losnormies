@@ -4,7 +4,6 @@ import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
-import ListViewModal from './ListViewModal';
 import { useSound } from '@/hooks/useSound';
 import { relativeTime } from '@/utils/relativeTime';
 
@@ -24,13 +23,12 @@ interface Post {
 export default function Canvas() {
   const { playOpen, playSuccess } = useSound();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showIdentityModal, setShowIdentityModal] = useState(false);
   const [showNSFW, setShowNSFW] = useState(false);
-  const [showListModal, setShowListModal] = useState(false);
 
   useEffect(() => {
     const uToken = localStorage.getItem('userToken');
@@ -58,67 +56,70 @@ export default function Canvas() {
   const filteredPosts = posts.filter(p => showNSFW || !p.isNSFW);
   const sortedPosts = [...filteredPosts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  const handleNewPost = () => {
+    if (!userToken) {
+      setShowIdentityModal(true);
+      return;
+    }
+    playOpen();
+    setShowCreateModal(true);
+  };
+
   return (
     <>
-      <div className="min-h-screen pb-16 pt-4 px-2 md:px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl glow font-bold tracking-wider">BOARD</h1>
-            <p className="text-dim text-xs mt-1">{sortedPosts.length} posts</p>
-          </div>
+      <div className="min-h-screen pb-20 pt-2 px-1 md:px-2">
+        {/* Header con boton NEW prominente */}
+        <div className="max-w-7xl mx-auto flex items-center justify-between mb-3 px-2">
+          <h1 className="text-lg md:text-xl glow font-bold">BOARD</h1>
+          <button onClick={handleNewPost} className="btn-bracket glow text-sm">NEW POST</button>
+        </div>
 
-          {/* Grid de Posts */}
+        {/* Grid de Posts - MAS COLUMNAS */}
+        <div className="max-w-7xl mx-auto">
           {sortedPosts.length === 0 ? (
-            <div className="terminal-box text-center py-8">
+            <div className="terminal-box text-center py-8 mx-2">
               <p className="text-dim mb-4">No posts yet.</p>
-              <button onClick={() => { playOpen(); setShowCreateModal(true); }} className="btn-bracket glow">NEW POST</button>
+              <button onClick={handleNewPost} className="btn-bracket glow">CREATE FIRST POST</button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 md:gap-2">
               {sortedPosts.map((post) => (
                 <div
                   key={post.id}
                   className="post-card cursor-pointer group"
                   onClick={() => { playOpen(); setSelectedPost(post); }}
                 >
-                  {/* Thumbnail */}
+                  {/* Thumbnail cuadrado pequeño */}
                   <div className="aspect-square bg-black border border-[var(--border-color)] overflow-hidden relative">
                     {post.imageUrl ? (
                       <img 
                         src={post.imageUrl} 
                         alt="" 
                         className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                        loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center p-2">
-                        <p className="text-xs text-dim text-center line-clamp-4 break-words">
-                          {post.text ? post.text.slice(0, 100) : 'No content'}
+                      <div className="w-full h-full flex items-center justify-center p-1 bg-[var(--bg-dark)]">
+                        <p className="text-[9px] text-dim text-center line-clamp-3 break-words">
+                          {post.text ? post.text.slice(0, 60) : '...'}
                         </p>
                       </div>
                     )}
-                    {/* NSFW overlay */}
-                    {post.isNSFW && !showNSFW && (
-                      <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-                        <span className="text-red-500 text-xs font-bold">NSFW</span>
+                    {post.isNSFW && (
+                      <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
+                        <span className="text-red-500 text-[10px] font-bold">18+</span>
                       </div>
                     )}
-                    {/* Reply count badge */}
                     {post.replyCount > 0 && (
-                      <div className="absolute bottom-1 right-1 bg-black/80 border border-[var(--matrix-green)] px-1 text-[10px]">
+                      <div className="absolute bottom-0 right-0 bg-black/90 border-l border-t border-[var(--matrix-green)] px-1 text-[9px]">
                         {post.replyCount}
                       </div>
                     )}
                   </div>
-                  {/* Info */}
-                  <div className="bg-[var(--bg-dark)] border border-t-0 border-[var(--border-color)] px-2 py-1">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-[var(--matrix-green-bright)] font-bold">{post.shortId}</span>
-                      <span className="text-dim">{relativeTime(post.createdAt)}</span>
-                    </div>
-                    {post.text && (
-                      <p className="text-[11px] text-gray-400 truncate mt-0.5">{post.text.slice(0, 50)}</p>
-                    )}
+                  {/* Info minima */}
+                  <div className="bg-[var(--bg-dark)] border border-t-0 border-[var(--border-color)] px-1 py-0.5 text-[9px] flex justify-between">
+                    <span className="text-[var(--matrix-green-bright)]">{post.shortId}</span>
+                    <span className="text-dim">{relativeTime(post.createdAt)}</span>
                   </div>
                 </div>
               ))}
@@ -132,13 +133,9 @@ export default function Canvas() {
         isLive={isLive}
         showNSFW={showNSFW}
         onToggleNSFW={() => setShowNSFW(prev => !prev)}
-        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
-        onCreateClick={() => {
-          if (!userToken) { playOpen(); setShowIdentityModal(true); return; }
-          playOpen();
-          setShowCreateModal(true);
-        }}
-        onListClick={() => setShowListModal(true)}
+        onLoginClick={() => setShowIdentityModal(true)}
+        onCreateClick={handleNewPost}
+        onListClick={() => {}}
         userToken={userToken}
       />
 
@@ -158,7 +155,7 @@ export default function Canvas() {
           adminToken={userToken}
           userToken={userToken}
           onAdminDelete={() => { fetchPosts(); setSelectedPost(null); }}
-          onRequestIdentity={() => { playOpen(); setShowIdentityModal(true); }}
+          onRequestIdentity={() => setShowIdentityModal(true)}
         />
       )}
 
@@ -170,13 +167,6 @@ export default function Canvas() {
           localStorage.setItem('userToken', token);
           setShowIdentityModal(false);
         }}
-      />
-
-      <ListViewModal
-        isOpen={showListModal}
-        onClose={() => setShowListModal(false)}
-        posts={filteredPosts}
-        onSelectPost={(post) => { playOpen(); setSelectedPost(post); setShowListModal(false); }}
       />
     </>
   );
