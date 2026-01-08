@@ -67,59 +67,62 @@ export default function Canvas() {
 
   return (
     <>
-      <div className="min-h-screen pb-20 pt-2 px-1 md:px-2">
-        {/* Header con boton NEW prominente */}
-        <div className="max-w-7xl mx-auto flex items-center justify-between mb-3 px-2">
-          <h1 className="text-lg md:text-xl glow font-bold">BOARD</h1>
-          <button onClick={handleNewPost} className="btn-bracket glow text-sm">NEW POST</button>
+      <div className="min-h-screen pb-20 pt-4 px-1 md:px-2">
+        {/* Header Centrado */}
+        <div className="flex flex-col items-center justify-center mb-6 relative">
+             <h1 className="text-3xl md:text-5xl glow font-bold tracking-widest text-center">LOS NORMIES</h1>
+             <div className="absolute right-0 top-1 hidden md:block">
+                 <button onClick={handleNewPost} className="btn-bracket text-sm">NEW THREAD</button>
+             </div>
+             {/* Mobile New Button debajo por si acaso */}
+             <div className="mt-4 md:hidden">
+                 <button onClick={handleNewPost} className="btn-bracket text-sm">Create New Post</button>
+             </div>
         </div>
 
-        {/* Grid de Posts - MAS COLUMNAS */}
-        <div className="max-w-7xl mx-auto">
+        {/* Grid de Posts */}
+        <div className="max-w-[1800px] mx-auto">
           {sortedPosts.length === 0 ? (
-            <div className="terminal-box text-center py-8 mx-2">
-              <p className="text-dim mb-4">No posts yet.</p>
-              <button onClick={handleNewPost} className="btn-bracket glow">CREATE FIRST POST</button>
+            <div className="terminal-box text-center py-12 mx-4">
+              <p className="text-dim mb-4">No normies detected yet.</p>
+              <button onClick={handleNewPost} className="btn-bracket glow">START THREAD</button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 md:gap-2">
+             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-0.5 md:gap-1">
               {sortedPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="post-card cursor-pointer group"
+                  className="post-card cursor-pointer group relative bg-black border border-[var(--border-color)] hover:border-[var(--matrix-green)] transition-colors"
                   onClick={() => { playOpen(); setSelectedPost(post); }}
                 >
-                  {/* Thumbnail cuadrado pequeño */}
-                  <div className="aspect-square bg-black border border-[var(--border-color)] overflow-hidden relative">
+                  {/* Thumbnail Ratio 1:1 estricto */}
+                  <div className="aspect-square overflow-hidden relative">
                     {post.imageUrl ? (
                       <img 
                         src={post.imageUrl} 
                         alt="" 
-                        className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center p-1 bg-[var(--bg-dark)]">
-                        <p className="text-[9px] text-dim text-center line-clamp-3 break-words">
-                          {post.text ? post.text.slice(0, 60) : '...'}
-                        </p>
+                      <div className="w-full h-full flex items-center justify-center p-2 bg-[var(--bg-dark)]">
+                         <span className="text-[var(--matrix-green-dim)] text-xs text-center break-all font-mono leading-tight opacity-50 select-none">
+                           {post.text?.slice(0,40) || 'TEXT'}
+                         </span>
                       </div>
                     )}
+                    
+                    {/* Overlays */}
                     {post.isNSFW && (
-                      <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
-                        <span className="text-red-500 text-[10px] font-bold">18+</span>
+                      <div className="absolute inset-0 bg-black/95 flex items-center justify-center pointer-events-none">
+                        <span className="text-red-600 text-[10px] font-bold border border-red-600 px-1">NSFW</span>
                       </div>
                     )}
-                    {post.replyCount > 0 && (
-                      <div className="absolute bottom-0 right-0 bg-black/90 border-l border-t border-[var(--matrix-green)] px-1 text-[9px]">
-                        {post.replyCount}
-                      </div>
-                    )}
-                  </div>
-                  {/* Info minima */}
-                  <div className="bg-[var(--bg-dark)] border border-t-0 border-[var(--border-color)] px-1 py-0.5 text-[9px] flex justify-between">
-                    <span className="text-[var(--matrix-green-bright)]">{post.shortId}</span>
-                    <span className="text-dim">{relativeTime(post.createdAt)}</span>
+                    
+                    {/* Stats overlay bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-1 pt-4 flex justify-between items-end">
+                       <span className="text-[9px] text-white/50">{post.replyCount > 0 ? R: : ''}</span>
+                    </div>
                   </div>
                 </div>
               ))}
