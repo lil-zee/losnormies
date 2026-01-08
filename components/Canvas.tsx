@@ -141,8 +141,7 @@ export default function Canvas() {
         isOpen={showListModal}
         onClose={() => setShowListModal(false)}
         posts={filteredPosts}
-        onSelect={(post) => { playOpen(); setSelectedPost(post); setShowListModal(false); }}
-        isLoading={false}
+        onSelectPost={(post) => { playOpen(); setSelectedPost(post); setShowListModal(false); }}
       />
     </>
   );
