@@ -84,3 +84,19 @@ input[type="checkbox"] { accent-color: var(--matrix-green); }
 .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
 
 @media (max-width: 640px) { .nav-bar { flex-wrap: wrap; gap: 8px; } .irc-message { flex-wrap: wrap; } }
+
+/* Post Card - Imageboard style */
+.post-card {
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--matrix-green-dim);
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
