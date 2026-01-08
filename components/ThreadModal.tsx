@@ -23,7 +23,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch(/api/posts/+post.id).then(r => r.json()).then(d => setThread(d)).catch(console.error);
+    fetch('/api/posts/' + post.id).then(r => r.json()).then(d => setThread(d)).catch(console.error);
   }, [post.id]);
 
   const formatTime = (d: string) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -51,7 +51,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
         if (!uploadRes.ok) throw new Error(uploadData.error);
         imageUrl = uploadData.url;
       }
-      await fetch(/api/posts/+post.id+/replies, {
+      await fetch('/api/posts/' + post.id + '/replies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
         body: JSON.stringify({ text: replyText || undefined, imageUrl }),
@@ -59,7 +59,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
       setReplyText('');
       setReplyImage(null);
       setReplyImagePreview(null);
-      const refreshed = await fetch(/api/posts/+post.id).then(r => r.json());
+      const refreshed = await fetch('/api/posts/' + post.id).then(r => r.json());
       setThread(refreshed);
     } catch (err) { console.error(err); }
     finally { setIsSubmitting(false); }
@@ -75,7 +75,6 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
           <button onClick={onClose} className="btn-bracket">X</button>
         </div>
         <div className="modal-body">
-          {/* OP */}
           <div className="irc-message mb-4 pb-4 border-b border-[var(--border-color)]">
             <span className="irc-timestamp">{formatTime(thread.createdAt)}</span>
             <span className="irc-user">{thread.shortId}</span>
@@ -84,12 +83,11 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
               {thread.imageUrl && <img src={thread.imageUrl} className="max-h-48 mt-2 border border-[var(--matrix-green-dim)]" />}
             </div>
           </div>
-          {/* Replies */}
           <div className="text-dim text-xs mb-2">-- REPLIES ({thread.replies?.length || 0}) --</div>
           {thread.replies?.map((r) => (
             <div key={r.id} className="irc-message">
               <span className="irc-timestamp">{formatTime(r.createdAt)}</span>
-              <span className="irc-user" style={{ color: '#'+r.id.slice(0,6) }}>{r.id.slice(0,8)}</span>
+              <span className="irc-user" style={{ color: '#' + r.id.slice(0,6) }}>{r.id.slice(0,8)}</span>
               <div className="irc-content">
                 {r.text && <MarkdownContent content={r.text} />}
                 {r.imageUrl && <img src={r.imageUrl} className="max-h-24 mt-1 border border-[var(--matrix-green-dim)]" />}
