@@ -77,7 +77,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
       <div className="modal-overlay animate-fadeIn" onClick={onClose}>
         <div className="modal-box" onClick={e => e.stopPropagation()}>
           <div className="modal-body text-center py-8">
-            <span className="text-dim">Loading...</span>
+            <span className="text-dim">Loading thread...</span>
           </div>
         </div>
       </div>
@@ -86,72 +86,122 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
 
   return (
     <div className="modal-overlay animate-fadeIn" onClick={onClose}>
-      <div className="modal-box" style={{ maxWidth: '700px', maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-box" style={{ maxWidth: '900px', maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
+        {/* Header */}
         <div className="modal-header">
-          <h2>#{thread.shortId}</h2>
-          <div className="flex gap-2">
-            <span className="text-dim text-xs">{relativeTime(thread.createdAt)}</span>
-            <button onClick={onClose} className="btn-bracket">X</button>
+          <div className="flex items-center gap-3">
+            <h2>Thread #{thread.shortId}</h2>
+            <span className="text-dim text-xs">{thread.replies?.length || 0} replies</span>
           </div>
+          <button onClick={onClose} className="btn-bracket">CLOSE</button>
         </div>
         
-        <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        {/* Thread Content */}
+        <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
           {/* OP Post */}
-          <div className="mb-4 pb-4 border-b border-[var(--border-color)]">
+          <div className="mb-6 pb-4 border-b-2 border-[var(--matrix-green-dim)]">
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-[var(--matrix-green-bright)] font-bold">#{thread.shortId}</span>
+              <span className="text-dim text-xs">{new Date(thread.createdAt).toLocaleString()}</span>
+              <span className="text-dim text-xs">(OP)</span>
+            </div>
+            
             {thread.imageUrl && (
-              <div className="mb-3">
-                <img src={thread.imageUrl} alt="" className="max-w-full max-h-64 border border-[var(--matrix-green-dim)]" />
+              <div className="mb-4">
+                <img 
+                  src={thread.imageUrl} 
+                  alt="" 
+                  className="max-w-full max-h-96 border border-[var(--matrix-green)]"
+                />
               </div>
             )}
+            
             {thread.text && (
-              <div className="text-sm text-gray-300">
+              <div className="text-sm text-gray-200 font-mono">
                 <MarkdownContent content={thread.text} />
               </div>
             )}
           </div>
 
           {/* Replies */}
-          <div className="text-dim text-xs mb-3">-- {thread.replies?.length || 0} REPLIES --</div>
-          <div className="space-y-3">
-            {thread.replies?.map((r) => (
-              <div key={r.id} className="terminal-box text-sm">
-                <div className="flex justify-between mb-2 text-xs">
-                  <span style={{ color: '#' + r.id.slice(0,6) }}>{r.id.slice(0,8)}</span>
-                  <span className="text-dim">{relativeTime(r.createdAt)}</span>
+          {thread.replies && thread.replies.length > 0 ? (
+            <div className="space-y-4">
+              {thread.replies.map((reply, idx) => (
+                <div key={reply.id} className="border-l-2 border-[var(--matrix-green-dim)] pl-4 hover:border-[var(--matrix-green)] transition-colors">
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-[var(--matrix-green-bright)] text-sm font-bold">
+                      Anonymous
+                    </span>
+                    <span className="text-dim text-xs">{relativeTime(reply.createdAt)}</span>
+                    <span className="text-dim text-xs">No.{idx + 1}</span>
+                  </div>
+                  
+                  {reply.imageUrl && (
+                    <img 
+                      src={reply.imageUrl} 
+                      alt="" 
+                      className="max-h-48 mb-2 border border-[var(--matrix-green-dim)]"
+                    />
+                  )}
+                  
+                  {reply.text && (
+                    <div className="text-sm text-gray-300 font-mono">
+                      <MarkdownContent content={reply.text} />
+                    </div>
+                  )}
                 </div>
-                {r.imageUrl && <img src={r.imageUrl} alt="" className="max-h-32 mb-2 border border-[var(--matrix-green-dim)]" />}
-                {r.text && <div className="text-gray-300"><MarkdownContent content={r.text} /></div>}
-              </div>
-            ))}
-            {(!thread.replies || thread.replies.length === 0) && (
-              <p className="text-dim text-xs text-center py-4">No replies yet. Be the first!</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-dim text-sm text-center py-8 border border-dashed border-[var(--border-color)]">
+              No replies yet. Be the first to reply!
+            </p>
+          )}
         </div>
 
         {/* Reply Form */}
-        <div className="modal-footer flex-col gap-2">
-          {error && <p className="text-red-500 text-xs">{error}</p>}
-          <form onSubmit={handleSubmitReply} className="flex gap-2 items-center w-full">
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-bracket text-xs">
-              {replyImage ? 'IMG OK' : 'IMG'}
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            <input
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder={userToken ? 'Write a reply...' : 'Login first to reply'}
-              className="flex-1 text-sm"
-              disabled={!userToken}
-            />
-            <button type="submit" disabled={isSubmitting || !userToken} className="btn-bracket glow">
-              {isSubmitting ? '...' : 'SEND'}
-            </button>
-          </form>
+        <div className="modal-footer flex-col gap-3 border-t-2 border-[var(--matrix-green-dim)]">
           {!userToken && (
-            <button onClick={onRequestIdentity} className="btn-bracket text-xs w-full">LOGIN TO REPLY</button>
+            <div className="w-full text-center">
+              <button onClick={onRequestIdentity} className="btn-bracket glow">
+                LOGIN TO REPLY
+              </button>
+            </div>
           )}
+          
+          {error && <p className="text-red-500 text-xs w-full">{error}</p>}
+          
+          <form onSubmit={handleSubmitReply} className="w-full space-y-2">
+            <div className="flex gap-2">
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()} 
+                className="btn-bracket text-xs flex-shrink-0"
+                disabled={!userToken}
+              >
+                {replyImage ? 'IMG ✓' : 'ADD IMG'}
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder={userToken ? 'Write your reply...' : 'Login first to reply'}
+                className="flex-1 text-sm resize-none h-20"
+                disabled={!userToken}
+              />
+            </div>
+            
+            <div className="flex justify-end">
+              <button 
+                type="submit" 
+                disabled={isSubmitting || !userToken || (!replyText.trim() && !replyImage)} 
+                className="btn-bracket glow"
+              >
+                {isSubmitting ? 'POSTING...' : 'POST REPLY'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

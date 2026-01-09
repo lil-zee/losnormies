@@ -100,3 +100,28 @@ input[type="checkbox"] { accent-color: var(--matrix-green); }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Thread Card - Imageboard style */
+.thread-card {
+  transition: all 0.2s ease;
+}
+.thread-card:hover {
+  background: #0f0f0f;
+  box-shadow: 0 0 8px var(--matrix-green-dim);
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* No scrollbar visual for overflow areas */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
