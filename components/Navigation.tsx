@@ -28,44 +28,54 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
         setPrices({
-          bitcoin: data.bitcoin?.usd || 95000, // Fallback visual
-          ethereum: data.ethereum?.usd || 2700,
-          solana: data.solana?.usd || 140,
+          bitcoin: data.bitcoin?.usd || 0,
+          ethereum: data.ethereum?.usd || 0,
+          solana: data.solana?.usd || 0,
         });
       } catch (err) {
-        // Fallback visual silencioso
-        setPrices({ bitcoin: 98420, ethereum: 2850, solana: 145 });
+        // Silent fail
       }
     };
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60000);
+    const interval = setInterval(fetchPrices, 60000); 
     return () => clearInterval(interval);
   }, []);
 
   const formatPrice = (p: number) => {
-    if (p >= 1000) return (p / 1000).toFixed(1) + 'k';
-    return p.toFixed(0);
+    if (p === 0) return '...';
+    return p.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
 
   return (
-    <nav className="nav-bar">
-      <div className="nav-left">
-        <button onClick={onCreateClick} className="btn-bracket glow text-xs">NEW</button>
+    <nav className="nav-bar h-12 border-t border-[var(--matrix-green)] bg-black z-50 flex justify-between items-center px-4 fixed bottom-0 left-0 right-0 text-xs font-mono">
+      <div className="flex items-center gap-4">
+        <button onClick={onCreateClick} className="btn-bracket text-[var(--matrix-green-bright)] font-bold animate-pulse">
+          + NEW THREAD
+        </button>
         <button onClick={onToggleLive} className="btn-bracket text-xs hidden sm:inline-block">
-          {isLive ? 'LIVE' : 'OFF'}
+          {isLive ? 'LIVE:ON' : 'LIVE:OFF'}
         </button>
       </div>
 
-      {/* Crypto Prices - Visible siempre, scroll horizontal si hace falta en movil pequeño */}
-      <div className="flex items-center gap-2 md:gap-4 text-[10px] whitespace-nowrap overflow-x-auto no-scrollbar px-2">
-        <span className="text-yellow-500">BTC ${formatPrice(prices.bitcoin)}</span>
-        <span className="text-blue-400">ETH ${formatPrice(prices.ethereum)}</span>
-        <span className="text-purple-400">SOL ${formatPrice(prices.solana)}</span>
+      {/* Crypto Ticker - Estilo Bolsa */}
+      <div className="flex items-center gap-px bg-[var(--bg-dark)] border border-[var(--border-color)] px-2 py-1 mx-2">
+        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-3 mr-3">
+          <span className="text-yellow-500 font-bold">BTC</span>
+          <span className="text-white">{formatPrice(prices.bitcoin)}</span>
+        </div>
+        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-3 mr-3">
+          <span className="text-blue-400 font-bold">ETH</span>
+          <span className="text-white">{formatPrice(prices.ethereum)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-purple-400 font-bold">SOL</span>
+          <span className="text-white">{formatPrice(prices.solana)}</span>
+        </div>
       </div>
 
-      <div className="nav-right">
-        <button onClick={onLoginClick} className="btn-bracket text-xs">
-          {userToken ? 'ID:' + userToken.slice(0, 3) : 'LOGIN'}
+      <div className="flex items-center gap-4">
+        <button onClick={onLoginClick} className="btn-bracket text-[var(--matrix-green)]">
+          {userToken ? ID: : 'LOGIN'}
         </button>
       </div>
     </nav>
