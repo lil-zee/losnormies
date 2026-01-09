@@ -37,7 +37,7 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
       }
     };
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60000);
+    const interval = setInterval(fetchPrices, 60000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -47,9 +47,9 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
   };
 
   return (
-    <nav className="nav-bar h-12 border-t border-[var(--matrix-green)] bg-black z-50 flex justify-between items-center px-4 fixed bottom-0 left-0 right-0 text-xs font-mono">
-      <div className="flex items-center gap-4">
-        <button onClick={onCreateClick} className="btn-bracket text-[var(--matrix-green-bright)] font-bold animate-pulse">
+    <nav className="nav-bar h-14 border-t border-[var(--matrix-green)] bg-black z-50 flex justify-between items-center px-2 md:px-6 fixed bottom-0 left-0 right-0 text-xs font-mono shadow-[0_-5px_20px_rgba(0,0,0,0.8)]">
+      <div className="flex items-center gap-2 md:gap-6">
+        <button onClick={onCreateClick} className="btn-bracket text-[var(--matrix-green-bright)] font-bold animate-pulse hover:scale-105 transition-transform">
           + NEW THREAD
         </button>
         <button onClick={onToggleLive} className="btn-bracket text-xs hidden sm:inline-block">
@@ -57,25 +57,30 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
         </button>
       </div>
 
-      {/* Crypto Ticker - Estilo Bolsa */}
-      <div className="flex items-center gap-px bg-[var(--bg-dark)] border border-[var(--border-color)] px-2 py-1 mx-2">
-        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-3 mr-3">
-          <span className="text-yellow-500 font-bold">BTC</span>
-          <span className="text-white">{formatPrice(prices.bitcoin)}</span>
+      {/* Crypto Ticker - Estilo Bolsa Espaciado */}
+      <div className="flex items-center gap-px bg-[var(--bg-dark)] border border-[var(--border-color)] px-4 py-2 mx-2 hidden md:flex rounded-sm">
+        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-6 mr-6">
+          <span className="text-yellow-500 font-bold tracking-wider">BTC</span>
+          <span className="text-white font-medium">{formatPrice(prices.bitcoin)}</span>
         </div>
-        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-3 mr-3">
-          <span className="text-blue-400 font-bold">ETH</span>
-          <span className="text-white">{formatPrice(prices.ethereum)}</span>
+        <div className="flex items-center gap-2 border-r border-[var(--border-color)] pr-6 mr-6">
+          <span className="text-blue-400 font-bold tracking-wider">ETH</span>
+          <span className="text-white font-medium">{formatPrice(prices.ethereum)}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-purple-400 font-bold">SOL</span>
-          <span className="text-white">{formatPrice(prices.solana)}</span>
+          <span className="text-purple-400 font-bold tracking-wider">SOL</span>
+          <span className="text-white font-medium">{formatPrice(prices.solana)}</span>
         </div>
+      </div>
+      
+      {/* Mobile Crypto (Solo BTC/ETH) */}
+      <div className="flex md:hidden gap-3 text-[10px] items-center text-dim bg-[var(--bg-dark)] px-2 py-1 border border-[var(--border-color)]">
+        <span className="text-yellow-500">BTC {formatPrice(prices.bitcoin).replace('$','')}</span>
       </div>
 
       <div className="flex items-center gap-4">
-        <button onClick={onLoginClick} className="btn-bracket text-[var(--matrix-green)]">
-          {userToken ? ('ID:' + userToken.slice(0, 4)) : 'LOGIN'}
+        <button onClick={onLoginClick} className="btn-bracket text-[var(--matrix-green)] font-bold tracking-wide">
+          {userToken ? ('ID:' + userToken.slice(0,4)) : 'LOGIN'}
         </button>
       </div>
     </nav>

@@ -7,7 +7,7 @@ import { relativeTime } from '@/utils/relativeTime';
 interface Reply { id: string; text?: string; imageUrl?: string; createdAt: string; }
 interface Post { id: string; shortId: string; text?: string; imageUrl?: string; createdAt: string; replies?: Reply[]; likes?: number; }
 interface Props {
-  post: Post;
+  post: Post; // Datos iniciales (thumbnail, etc)
   onClose: () => void;
   adminToken?: string | null;
   userToken?: string | null;
@@ -16,24 +16,26 @@ interface Props {
 }
 
 export default function ThreadModal({ post, onClose, adminToken, userToken, onAdminDelete, onRequestIdentity }: Props) {
-  const [thread, setThread] = useState<Post | null>(null);
+  // Inicializamos con los datos básicos 'post' para que se vea algo YA Mismo
+  const [thread, setThread] = useState<Post>(post); 
+  const [isLoading, setIsLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
   const [replyImage, setReplyImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load Full Thread Data
+  // Load Full Thread Data (Replies, etc)
   const loadThread = async () => {
     try {
       const res = await fetch('/api/posts/' + post.id);
       if (!res.ok) throw new Error('Failed to load thread');
       const data = await res.json();
-      setThread(data);
+      setThread(data); // Actualizamos con datos completos
     } catch (e) {
       console.error(e);
-      // Fallback to prop data if fetch fails
-      setThread(post);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +79,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
       
       setReplyText('');
       setReplyImage(null);
-      loadThread(); // Reload to show new reply
+      loadThread(); 
     } catch (err: any) { 
       setError(err.message || 'Error posting reply'); 
     } finally { 
@@ -85,12 +87,10 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
     }
   };
 
-  if (!thread) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center p-4 md:p-8 animate-fadeIn" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center p-0 md:p-8 animate-fadeIn select-none" onClick={onClose}>
       <div 
-        className="bg-black border border-[var(--matrix-green)] w-full max-w-6xl h-[85vh] flex flex-col md:flex-row overflow-hidden shadow-[0_0_20px_rgba(0,255,65,0.2)]" 
+        className="bg-black border border-[var(--matrix-green)] w-full h-full md:max-w-6xl md:h-[85vh] flex flex-col md:flex-row overflow-hidden shadow-[0_0_20px_rgba(0,255,65,0.2)]" 
         onClick={e => e.stopPropagation()}
       >
         
@@ -113,7 +113,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
                <span className="text-dim text-sm">{new Date(thread.createdAt).toLocaleString()}</span>
              </div>
              {thread.text && (
-               <div className="text-base text-gray-200 font-mono whitespace-pre-wrap">
+               <div className="text-base text-gray-200 font-mono whitespace-pre-wrap select-text">
                  <MarkdownContent content={thread.text} />
                </div>
              )}
@@ -124,23 +124,27 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
         <div className="flex-1 flex flex-col h-full bg-black">
           
           {/* Header Mobile Only */}
-          <div className="md:hidden p-2 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-dark)]">
+          <div className="md:hidden p-3 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-dark)]">
              <span className="text-[var(--matrix-green-bright)] font-bold">#{thread.shortId}</span>
-             <button onClick={onClose} className="btn-bracket text-xs">CLOSE</button>
+             <button onClick={onClose} className="text-[var(--matrix-green)] font-bold px-2 py-1 border border-[var(--matrix-green)]">CLOSE</button>
           </div>
 
           {/* Header Desktop */}
           <div className="hidden md:flex p-3 border-b border-[var(--border-color)] justify-between items-center bg-[var(--bg-dark)]">
-            <h3 className="text-[var(--matrix-green)] font-bold">REPLIES ({thread.replies?.length || 0})</h3>
+            <h3 className="text-[var(--matrix-green)] font-bold">
+               REPLIES ({thread.replies?.length || 0}) 
+               {isLoading && <span className="text-dim ml-2 text-xs">Loading...</span>}
+            </h3>
             <button onClick={onClose} className="btn-bracket hover:text-white">CLOSE [X]</button>
           </div>
 
-          {/* Mobile OP View (Scrollable with replies) */}
+          {/* Scrolling Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            
             {/* OP Content for Mobile */}
             <div className="md:hidden mb-6 pb-4 border-b border-[var(--matrix-green-dim)]">
               {thread.imageUrl && <img src={thread.imageUrl} className="w-full mb-2 border border-[var(--border-color)]" />}
-              {thread.text && <div className="text-sm font-mono"><MarkdownContent content={thread.text} /></div>}
+              {thread.text && <div className="text-sm font-mono select-text"><MarkdownContent content={thread.text} /></div>}
             </div>
 
             {/* Replies List */}
@@ -148,7 +152,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
               <div key={reply.id} className="bg-[var(--bg-dark)] border border-[var(--border-color)] p-3 hover:border-[var(--matrix-green-dim)] transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex gap-2 text-xs">
-                    <span className="text-[var(--matrix-green-bright)] font-bold">Anom</span>
+                    <span className="text-[var(--matrix-green-bright)] font-bold">Anonymous</span>
                     <span className="text-dim">{relativeTime(reply.createdAt)}</span>
                     <span className="text-dim">No.{idx + 1}</span>
                   </div>
@@ -164,26 +168,26 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
                 )}
                 
                 {reply.text && (
-                  <div className="text-sm text-gray-300 font-mono break-words">
+                  <div className="text-sm text-gray-300 font-mono break-words select-text">
                     <MarkdownContent content={reply.text} />
                   </div>
                 )}
               </div>
             ))}
             
-            {(!thread.replies || thread.replies.length === 0) && (
+            {!isLoading && (!thread.replies || thread.replies.length === 0) && (
               <div className="text-center py-8 text-dim text-sm italic">
                 No replies yet.
               </div>
             )}
           </div>
 
-          {/* Reply Form (Fixed at bottom) */}
-          <div className="p-3 border-t border-[var(--matrix-green)] bg-[var(--bg-dark)]">
+          {/* Reply Form */}
+          <div className="p-3 border-t border-[var(--matrix-green)] bg-[var(--bg-dark)] keyboard-safe-area">
             {error && <div className="text-red-500 text-xs mb-2 bg-black/50 p-1">{error}</div>}
             
             {!userToken ? (
-              <button onClick={onRequestIdentity} className="w-full btn-bracket glow py-2 text-center">
+              <button onClick={onRequestIdentity} className="w-full btn-bracket glow py-3 text-center text-sm font-bold">
                 LOGIN TO REPLY
               </button>
             ) : (
@@ -191,7 +195,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
                  <button 
                    type="button" 
                    onClick={() => fileInputRef.current?.click()} 
-                   className={'btn-bracket text-xs px-2 ' + (replyImage ? 'text-[var(--matrix-green-bright)]' : '')}
+                   className={'btn-bracket text-xs px-2 flex items-center justify-center min-w-[3rem] ' + (replyImage ? 'text-[var(--matrix-green-bright)] border-[var(--matrix-green-bright)]' : '')}
                  >
                    {replyImage ? 'IMG!' : 'IMG'}
                  </button>
@@ -201,20 +205,21 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
                    type="text"
                    value={replyText}
                    onChange={(e) => setReplyText(e.target.value)}
-                   placeholder="Reply to thread..."
-                   className="flex-1 bg-black border border-[var(--border-color)] px-2 py-1 text-sm focus:border-[var(--matrix-green)] outline-none"
+                   placeholder="Reply..."
+                   className="flex-1 bg-black border border-[var(--border-color)] px-3 py-2 text-sm focus:border-[var(--matrix-green)] outline-none"
                    disabled={isSubmitting}
                  />
                  
                  <button 
                    type="submit" 
                    disabled={isSubmitting || (!replyText && !replyImage)}
-                   className="btn-bracket glow px-4 text-sm font-bold"
+                   className="btn-bracket glow px-5 text-sm font-bold"
                  >
-                   {isSubmitting ? '...' : '>>'}
+                   {isSubmitting ? '...' : 'SEND'}
                  </button>
               </form>
             )}
+            <div className="md:hidden h-2"></div> {/* Spacer for mobile touches */}
           </div>
         </div>
       </div>
