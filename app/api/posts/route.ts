@@ -5,19 +5,12 @@ import { getClientIP, hashIP } from '@/lib/ip';
 import { generateDeleteToken, hashDeleteToken } from '@/lib/auth';
 import { ratelimit } from '@/lib/ratelimit';
 
-// GET /api/posts?minX=...&maxX=...&minY=...&maxY=...
+// GET /api/posts
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const minX = parseFloat(searchParams.get('minX') || '-1000');
-    const maxX = parseFloat(searchParams.get('maxX') || '1000');
-    const minY = parseFloat(searchParams.get('minY') || '-1000');
-    const maxY = parseFloat(searchParams.get('maxY') || '1000');
-
+    // We removed coordinate filtering since we are now a standard imageboard grid/list
     const posts = await prisma.post.findMany({
       where: {
-        x: { gte: minX, lte: maxX },
-        y: { gte: minY, lte: maxY },
         deletedAt: null,
       },
       select: {
@@ -32,7 +25,7 @@ export async function GET(request: NextRequest) {
         likes: true,
         isNSFW: true,
       },
-      take: 200,
+      take: 100, // Limit to 100 for now, could be paginated
       orderBy: { createdAt: 'desc' },
     });
 
