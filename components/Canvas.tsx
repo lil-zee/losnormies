@@ -5,7 +5,6 @@ import CreatePostModal from './CreatePostModal';
 import ThreadModal from './ThreadModal';
 import IdentityModal from './IdentityModal';
 import { useSound } from '@/hooks/useSound';
-import { relativeTime } from '@/utils/relativeTime';
 
 interface Post {
   id: string;
@@ -58,6 +57,7 @@ export default function Canvas() {
 
   const handleNewPost = () => {
     if (!userToken) {
+      playOpen();
       setShowIdentityModal(true);
       return;
     }
@@ -67,83 +67,55 @@ export default function Canvas() {
 
   return (
     <>
-      <div className="min-h-screen pb-20 pt-3 px-2">
-        {/* Header */}
-        <div className="max-w-5xl mx-auto mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl md:text-4xl glow font-bold tracking-widest select-none">LOS NORMIES</h1>
-            <button onClick={handleNewPost} className="btn-bracket glow">NEW THREAD</button>
-          </div>
-          <div className="text-dim text-xs border-t border-[var(--border-color)] pt-2">
-            Anonymous imageboard - {sortedPosts.length} active threads
-          </div>
+      <div className="min-h-screen pb-16 pt-3 px-2">
+        <div className="max-w-7xl mx-auto mb-4 flex items-center justify-between">
+          <h1 className="text-xl md:text-3xl glow font-bold tracking-widest">LOS NORMIES</h1>
+          <button onClick={handleNewPost} className="btn-bracket text-xs md:text-sm">NEW</button>
         </div>
 
-        {/* Threads List - Imageboard Style */}
-        <div className="max-w-5xl mx-auto space-y-2">
+        <div className="max-w-7xl mx-auto">
           {sortedPosts.length === 0 ? (
-            <div className="terminal-box text-center py-12">
-              <p className="text-dim mb-4">No threads yet.</p>
-              <button onClick={handleNewPost} className="btn-bracket glow">START FIRST THREAD</button>
+            <div className="terminal-box text-center py-8">
+              <p className="text-dim mb-3 text-sm">No threads yet.</p>
+              <button onClick={handleNewPost} className="btn-bracket glow text-sm">START FIRST THREAD</button>
             </div>
           ) : (
-            sortedPosts.map((post) => (
-              <div
-                key={post.id}
-                className="thread-card border border-[var(--border-color)] bg-[var(--bg-dark)] hover:border-[var(--matrix-green)] transition-colors cursor-pointer"
-                onClick={() => { playOpen(); setSelectedPost(post); }}
-              >
-                <div className="flex gap-3 p-2">
-                  {/* Thumbnail */}
-                  {post.imageUrl ? (
-                    <div className="flex-shrink-0 relative">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1">
+              {sortedPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="relative cursor-pointer group border border-[var(--border-color)] hover:border-[var(--matrix-green)] transition-colors bg-black"
+                  onClick={() => { playOpen(); setSelectedPost(post); }}
+                >
+                  <div className="aspect-square overflow-hidden relative">
+                    {post.imageUrl ? (
                       <img 
                         src={post.imageUrl} 
                         alt="" 
-                        className="w-24 h-24 md:w-32 md:h-32 object-cover border border-[var(--matrix-green-dim)]"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      {post.isNSFW && (
-                        <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
-                          <span className="text-red-600 text-xs font-bold">NSFW</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-black border border-[var(--matrix-green-dim)] flex items-center justify-center">
-                      <span className="text-dim text-xs">NO IMG</span>
-                    </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    {/* Header */}
-                    <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-                      <span className="text-[var(--matrix-green-bright)] font-bold text-sm">#{post.shortId}</span>
-                      <span className="text-dim text-xs">{relativeTime(post.createdAt)}</span>
-                      <span className="text-[var(--matrix-green)] text-xs">
-                        [{post.replyCount} {post.replyCount === 1 ? 'reply' : 'replies'}]
-                      </span>
-                    </div>
-
-                    {/* Text Preview */}
-                    {post.text && (
-                      <p className="text-sm text-gray-300 line-clamp-3 break-words font-mono">
-                        {post.text.slice(0, 200)}
-                        {post.text.length > 200 && '...'}
-                      </p>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[var(--bg-dark)] p-1">
+                        <span className="text-[8px] text-dim text-center break-all leading-tight">
+                          {post.text ? post.text.slice(0, 30) : 'TEXT'}
+                        </span>
+                      </div>
                     )}
-
-                    {/* Footer */}
-                    <div className="mt-2 text-xs text-dim">
-                      <span className="hover:text-[var(--matrix-green)] transition-colors">
-                        Click to view thread →
-                      </span>
-                    </div>
+                    {post.isNSFW && (
+                      <div className="absolute inset-0 bg-black/90 flex items-center justify-center">
+                        <span className="text-red-600 text-[8px] font-bold">18+</span>
+                      </div>
+                    )}
+                    {post.replyCount > 0 && (
+                      <div className="absolute bottom-0 right-0 bg-black/80 px-1 text-[8px] text-white border-l border-t border-[var(--matrix-green)]">
+                        {post.replyCount}
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -153,20 +125,26 @@ export default function Canvas() {
         isLive={isLive}
         showNSFW={showNSFW}
         onToggleNSFW={() => setShowNSFW(prev => !prev)}
-        onLoginClick={() => setShowIdentityModal(true)}
+        onLoginClick={() => { playOpen(); setShowIdentityModal(true); }}
         onCreateClick={handleNewPost}
         onListClick={() => {}}
         userToken={userToken}
       />
 
-      <CreatePostModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        x={0}
-        y={0}
-        onPostCreated={() => { playSuccess(); fetchPosts(); setShowCreateModal(false); }}
-        userToken={userToken}
-      />
+      {showCreateModal && (
+        <CreatePostModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          x={0}
+          y={0}
+          onPostCreated={() => { 
+            playSuccess(); 
+            fetchPosts(); 
+            setShowCreateModal(false); 
+          }}
+          userToken={userToken}
+        />
+      )}
 
       {selectedPost && (
         <ThreadModal
@@ -175,19 +153,22 @@ export default function Canvas() {
           adminToken={userToken}
           userToken={userToken}
           onAdminDelete={() => { fetchPosts(); setSelectedPost(null); }}
-          onRequestIdentity={() => setShowIdentityModal(true)}
+          onRequestIdentity={() => { playOpen(); setShowIdentityModal(true); }}
         />
       )}
 
-      <IdentityModal
-        isOpen={showIdentityModal}
-        onClose={() => setShowIdentityModal(false)}
-        onLogin={(token) => {
-          setUserToken(token);
-          localStorage.setItem('userToken', token);
-          setShowIdentityModal(false);
-        }}
-      />
+      {showIdentityModal && (
+        <IdentityModal
+          isOpen={showIdentityModal}
+          onClose={() => setShowIdentityModal(false)}
+          onLogin={(token) => {
+            setUserToken(token);
+            localStorage.setItem('userToken', token);
+            setShowIdentityModal(false);
+            playSuccess();
+          }}
+        />
+      )}
     </>
   );
 }

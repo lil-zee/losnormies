@@ -34,11 +34,11 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
         });
       } catch (err) {
         // Fallback visual silencioso
-        setPrices({ bitcoin: 98420, ethereum: 2850, solana: 145 }); 
+        setPrices({ bitcoin: 98420, ethereum: 2850, solana: 145 });
       }
     };
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60000); 
+    const interval = setInterval(fetchPrices, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,14 +58,14 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
 
       {/* Crypto Prices - Visible siempre, scroll horizontal si hace falta en movil pequeño */}
       <div className="flex items-center gap-2 md:gap-4 text-[10px] whitespace-nowrap overflow-x-auto no-scrollbar px-2">
-        <span className="text-yellow-500">BTC </span>
-        <span className="text-blue-400">ETH </span>
-        <span className="text-purple-400">SOL </span>
+        <span className="text-yellow-500">BTC ${formatPrice(prices.bitcoin)}</span>
+        <span className="text-blue-400">ETH ${formatPrice(prices.ethereum)}</span>
+        <span className="text-purple-400">SOL ${formatPrice(prices.solana)}</span>
       </div>
 
       <div className="nav-right">
         <button onClick={onLoginClick} className="btn-bracket text-xs">
-          {userToken ? 'ID:' + userToken.slice(0,3) : 'LOGIN'}
+          {userToken ? 'ID:' + userToken.slice(0, 3) : 'LOGIN'}
         </button>
       </div>
     </nav>
