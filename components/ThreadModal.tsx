@@ -7,7 +7,7 @@ import { relativeTime } from '@/utils/relativeTime';
 interface Reply { id: string; text?: string; imageUrl?: string; createdAt: string; }
 interface Post { id: string; shortId: string; text?: string; imageUrl?: string; createdAt: string; replies?: Reply[]; likes?: number; }
 interface Props {
-  post: Post; // Datos iniciales (thumbnail, etc)
+  post: Post;
   onClose: () => void;
   adminToken?: string | null;
   userToken?: string | null;
@@ -16,7 +16,6 @@ interface Props {
 }
 
 export default function ThreadModal({ post, onClose, adminToken, userToken, onAdminDelete, onRequestIdentity }: Props) {
-  // Inicializamos con los datos básicos 'post' para que se vea algo YA Mismo
   const [thread, setThread] = useState<Post>(post); 
   const [isLoading, setIsLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
@@ -25,13 +24,12 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load Full Thread Data (Replies, etc)
   const loadThread = async () => {
     try {
       const res = await fetch('/api/posts/' + post.id);
       if (!res.ok) throw new Error('Failed to load thread');
       const data = await res.json();
-      setThread(data); // Actualizamos con datos completos
+      setThread(data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -50,8 +48,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (!replyText.trim() && !replyImage) { setError('Text or image needed'); return; }
+    if (!replyText.trim() && !replyImage) return;
     if (!userToken) { onRequestIdentity?.(); return; }
     
     setIsSubmitting(true);
@@ -66,161 +63,144 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
         imageUrl = uploadData.url;
       }
       
-      const res = await fetch('/api/posts/' + post.id + '/replies', {
+      await fetch('/api/posts/' + post.id + '/replies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
         body: JSON.stringify({ text: replyText.trim() || undefined, imageUrl }),
       });
       
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Reply failed');
-      }
-      
       setReplyText('');
       setReplyImage(null);
       loadThread(); 
-    } catch (err: any) { 
-      setError(err.message || 'Error posting reply'); 
+    } catch (err) { 
+      console.error(err);
     } finally { 
       setIsSubmitting(false); 
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-[2000] flex items-center justify-center p-0 md:p-8 animate-fadeIn select-none" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/95 z-[2000] flex justify-center animate-fadeIn overflow-y-auto" onClick={onClose}>
       <div 
-        className="bg-black border border-[var(--matrix-green)] w-full h-full md:max-w-6xl md:h-[85vh] flex flex-col md:flex-row overflow-hidden shadow-[0_0_20px_rgba(0,255,65,0.2)]" 
+        className="w-full max-w-4xl min-h-screen bg-[var(--bg-dark)] border-x border-[var(--border-color)] flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,1)]" 
         onClick={e => e.stopPropagation()}
       >
         
-        {/* LEFT COLUMN: Image & OP (Desktop) */}
-        <div className="hidden md:flex flex-col w-1/2 border-r border-[var(--matrix-green-dim)] bg-[var(--bg-dark)] p-4 overflow-y-auto">
-           {thread.imageUrl ? (
-             <div className="mb-4">
-               <a href={thread.imageUrl} target="_blank" rel="noreferrer">
-                 <img src={thread.imageUrl} alt="" className="w-full object-contain max-h-[60vh] border border-[var(--border-color)]" />
-               </a>
-             </div>
-           ) : (
-             <div className="w-full h-64 flex items-center justify-center border border-dashed border-[var(--border-color)] mb-4">
-               <span className="text-dim">NO IMAGE</span>
-             </div>
-           )}
-           <div className="mt-2">
-             <div className="flex items-baseline gap-2 mb-2">
-               <span className="text-[var(--matrix-green-bright)] text-lg font-bold">#{thread.shortId}</span>
-               <span className="text-dim text-sm">{new Date(thread.createdAt).toLocaleString()}</span>
-             </div>
-             {thread.text && (
-               <div className="text-base text-gray-200 font-mono whitespace-pre-wrap select-text">
-                 <MarkdownContent content={thread.text} />
-               </div>
-             )}
-           </div>
+        {/* HEADER FIXED */}
+        <div className="sticky top-0 z-50 bg-black/95 border-b-2 border-[var(--matrix-green)] p-3 flex justify-between items-center backdrop-blur-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-[var(--matrix-green-bright)] text-xl font-bold">THREAD #{thread.shortId}</span>
+            <span className="text-dim text-xs hidden sm:inline">{new Date(thread.createdAt).toLocaleString()}</span>
+          </div>
+          <button onClick={onClose} className="btn-bracket text-lg font-bold hover:text-red-500 transition-colors">
+            CLOSE [X]
+          </button>
         </div>
 
-        {/* RIGHT COLUMN: Replies & Mobile View */}
-        <div className="flex-1 flex flex-col h-full bg-black">
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-1 p-4 pb-32"> {/* pb-32 para dejar espacio al form fijo */}
           
-          {/* Header Mobile Only */}
-          <div className="md:hidden p-3 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-dark)]">
-             <span className="text-[var(--matrix-green-bright)] font-bold">#{thread.shortId}</span>
-             <button onClick={onClose} className="text-[var(--matrix-green)] font-bold px-2 py-1 border border-[var(--matrix-green)]">CLOSE</button>
-          </div>
-
-          {/* Header Desktop */}
-          <div className="hidden md:flex p-3 border-b border-[var(--border-color)] justify-between items-center bg-[var(--bg-dark)]">
-            <h3 className="text-[var(--matrix-green)] font-bold">
-               REPLIES ({thread.replies?.length || 0}) 
-               {isLoading && <span className="text-dim ml-2 text-xs">Loading...</span>}
-            </h3>
-            <button onClick={onClose} className="btn-bracket hover:text-white">CLOSE [X]</button>
-          </div>
-
-          {/* Scrolling Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            
-            {/* OP Content for Mobile */}
-            <div className="md:hidden mb-6 pb-4 border-b border-[var(--matrix-green-dim)]">
-              {thread.imageUrl && <img src={thread.imageUrl} className="w-full mb-2 border border-[var(--border-color)]" />}
-              {thread.text && <div className="text-sm font-mono select-text"><MarkdownContent content={thread.text} /></div>}
+          {/* --- OP POST MAIN SECTION --- */}
+          <div className="mb-8 p-4 bg-black border border-[var(--matrix-green-dim)] relative">
+            <div className="absolute -top-3 left-4 bg-black px-2 text-[var(--matrix-green-bright)] font-bold text-sm">
+              OP (ORIGINAL POSTER)
             </div>
+            
+            {/* LARGE IMAGE VIEW */}
+            {thread.imageUrl && (
+              <div className="mb-4 flex justify-center bg-[#050505] border border-[var(--border-color)] p-1">
+                 <img 
+                   src={thread.imageUrl} 
+                   alt="OP Image" 
+                   className="max-h-[70vh] w-auto max-w-full object-contain"
+                 />
+              </div>
+            )}
+            
+            {/* OP TEXT */}
+            {thread.text && (
+              <div className="text-lg text-gray-100 font-mono leading-relaxed whitespace-pre-wrap break-words border-l-4 border-[var(--matrix-green)] pl-4 py-2">
+                <MarkdownContent content={thread.text} />
+              </div>
+            )}
+          </div>
+          {/* --------------------------- */}
 
-            {/* Replies List */}
-            {thread.replies?.map((reply, idx) => (
-              <div key={reply.id} className="bg-[var(--bg-dark)] border border-[var(--border-color)] p-3 hover:border-[var(--matrix-green-dim)] transition-colors">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex gap-2 text-xs">
-                    <span className="text-[var(--matrix-green-bright)] font-bold">Anonymous</span>
-                    <span className="text-dim">{relativeTime(reply.createdAt)}</span>
-                    <span className="text-dim">No.{idx + 1}</span>
-                  </div>
-                  <span className="text-[10px] text-dim font-mono">ID:{reply.id.slice(0,6)}</span>
+          {/* REPLIES SECTION */}
+          {thread.replies && thread.replies.length > 0 && (
+             <div className="space-y-4">
+               <div className="text-dim text-sm mb-2 border-b border-[var(--border-color)] pb-1">
+                 REPLIES ({thread.replies.length})
+               </div>
+               
+               {thread.replies.map((reply, idx) => (
+                 <div key={reply.id} className="bg-[#0a0a0a] border border-[var(--border-color)] p-4 hover:border-[var(--matrix-green-dim)] transition-colors">
+                    <div className="flex justify-between text-xs mb-2 text-dim">
+                      <span className="text-[var(--matrix-green)] font-bold">Anonymous {idx + 1}</span>
+                      <span>{relativeTime(reply.createdAt)}</span>
+                    </div>
+
+                    {reply.imageUrl && (
+                      <div className="mb-2">
+                        <img src={reply.imageUrl} className="max-h-60 border border-[var(--border-color)]" />
+                      </div>
+                    )}
+
+                    {reply.text && (
+                      <div className="text-sm font-mono text-gray-300 break-words">
+                        <MarkdownContent content={reply.text} />
+                      </div>
+                    )}
+                 </div>
+               ))}
+             </div>
+          )}
+
+          {(!thread.replies || thread.replies.length === 0) && !isLoading && (
+            <div className="text-center py-12 border border-dashed border-[var(--border-color)] text-dim">
+              No answers yet. Be the first to break the silence.
+            </div>
+          )}
+        </div>
+
+        {/* FOOTER REPLY FORM (FIXED) */}
+        <div className="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto w-full max-w-4xl mx-auto bg-black border-t-2 border-[var(--matrix-green)] p-3 shadow-lg z-50">
+          {!userToken ? (
+             <button onClick={onRequestIdentity} className="w-full btn-bracket glow py-3 font-bold text-center">
+               [ LOGIN TO REPLY ]
+             </button>
+          ) : (
+             <form onSubmit={handleSubmitReply} className="flex gap-2 items-end">
+                <div className="flex flex-col gap-1">
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  <button 
+                    type="button" 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className={'btn-bracket h-12 w-12 flex items-center justify-center ' + (replyImage ? 'text-[var(--matrix-green-bright)] border-[var(--matrix-green-bright)]' : '')}
+                  >
+                    {replyImage ? 'IMG' : '+'}
+                  </button>
                 </div>
                 
-                {reply.imageUrl && (
-                  <div className="mb-2">
-                    <a href={reply.imageUrl} target="_blank" rel="noreferrer">
-                      <img src={reply.imageUrl} className="max-h-32 object-contain border border-[var(--border-color)]" />
-                    </a>
-                  </div>
-                )}
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your reply here..."
+                  className="flex-1 bg-[#111] border border-[var(--border-color)] p-2 h-12 text-sm focus:border-[var(--matrix-green)] outline-none resize-none font-mono"
+                  disabled={isSubmitting}
+                />
                 
-                {reply.text && (
-                  <div className="text-sm text-gray-300 font-mono break-words select-text">
-                    <MarkdownContent content={reply.text} />
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {!isLoading && (!thread.replies || thread.replies.length === 0) && (
-              <div className="text-center py-8 text-dim text-sm italic">
-                No replies yet.
-              </div>
-            )}
-          </div>
-
-          {/* Reply Form */}
-          <div className="p-3 border-t border-[var(--matrix-green)] bg-[var(--bg-dark)] keyboard-safe-area">
-            {error && <div className="text-red-500 text-xs mb-2 bg-black/50 p-1">{error}</div>}
-            
-            {!userToken ? (
-              <button onClick={onRequestIdentity} className="w-full btn-bracket glow py-3 text-center text-sm font-bold">
-                LOGIN TO REPLY
-              </button>
-            ) : (
-              <form onSubmit={handleSubmitReply} className="flex gap-2">
-                 <button 
-                   type="button" 
-                   onClick={() => fileInputRef.current?.click()} 
-                   className={'btn-bracket text-xs px-2 flex items-center justify-center min-w-[3rem] ' + (replyImage ? 'text-[var(--matrix-green-bright)] border-[var(--matrix-green-bright)]' : '')}
-                 >
-                   {replyImage ? 'IMG!' : 'IMG'}
-                 </button>
-                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                 
-                 <input
-                   type="text"
-                   value={replyText}
-                   onChange={(e) => setReplyText(e.target.value)}
-                   placeholder="Reply..."
-                   className="flex-1 bg-black border border-[var(--border-color)] px-3 py-2 text-sm focus:border-[var(--matrix-green)] outline-none"
-                   disabled={isSubmitting}
-                 />
-                 
-                 <button 
-                   type="submit" 
-                   disabled={isSubmitting || (!replyText && !replyImage)}
-                   className="btn-bracket glow px-5 text-sm font-bold"
-                 >
-                   {isSubmitting ? '...' : 'SEND'}
-                 </button>
-              </form>
-            )}
-            <div className="md:hidden h-2"></div> {/* Spacer for mobile touches */}
-          </div>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting || (!replyText && !replyImage)}
+                  className="btn-bracket glow h-12 px-6 font-bold text-sm"
+                >
+                  {isSubmitting ? '...' : 'SEND'}
+                </button>
+             </form>
+          )}
+          {/* Safe area for mobile navigation bars */}
+          <div className="h-4 md:hidden"></div>
         </div>
       </div>
     </div>
