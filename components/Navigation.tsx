@@ -37,7 +37,7 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
       }
     };
     fetchPrices();
-    const interval = setInterval(fetchPrices, 60000); 
+    const interval = setInterval(fetchPrices, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -75,7 +75,7 @@ export default function Navigation({ onCreateClick, userToken, onLoginClick, isL
 
       <div className="flex items-center gap-4">
         <button onClick={onLoginClick} className="btn-bracket text-[var(--matrix-green)]">
-          {userToken ? ID: : 'LOGIN'}
+          {userToken ? ('ID:' + userToken.slice(0, 4)) : 'LOGIN'}
         </button>
       </div>
     </nav>

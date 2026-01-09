@@ -191,7 +191,7 @@ export default function ThreadModal({ post, onClose, adminToken, userToken, onAd
                  <button 
                    type="button" 
                    onClick={() => fileInputRef.current?.click()} 
-                   className={tn-bracket text-xs px-2 }
+                   className={'btn-bracket text-xs px-2 ' + (replyImage ? 'text-[var(--matrix-green-bright)]' : '')}
                  >
                    {replyImage ? 'IMG!' : 'IMG'}
                  </button>
